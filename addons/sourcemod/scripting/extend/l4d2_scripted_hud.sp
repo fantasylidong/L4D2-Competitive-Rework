@@ -1433,7 +1433,7 @@ void GetHUD1_Text(char[] output, int size)
 	{
 		FormatEx(output, size, "%s    女巫: [ 固定 ]", output);
 	}
-	PrintToConsoleAll("tank: %d witch: %d", IsStaticTank, IsStaticTank);
+	//PrintToConsoleAll("tank: %d witch: %d", IsStaticTank, IsStaticTank);
 }
 
 /****************************************************************************************************/
