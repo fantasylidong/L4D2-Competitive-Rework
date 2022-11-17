@@ -42,7 +42,9 @@ public Plugin myinfo =
 	version = "1.1",
 	url = "https://github.com/fantasylidong/CompetitiveWithAnne"
 };
-#define UPDATE_URL    "http://dl.trygek.com/left4dead2/addons/sourcemod/Anne_Updater.txt"
+#define UPDATE_URL_ANNE "http://dl.trygek.com/left4dead2/addons/sourcemod/Anne_Updater.txt"
+#define UPDATE_URL_NEKO "http://dl.trygek.com/left4dead2/addons/sourcemod/Neko_Updater.txt"
+#define UPDATE_URL_VERSUS "http://dl.trygek.com/left4dead2/addons/sourcemod/Versus_Updater.txt"
 
 bool  g_bUpdateSystemAvailable = false, g_bGroupSystemAvailable = false;
 
@@ -80,6 +82,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_ip", ShowAnneServerIP);
 	RegConsoleCmd("sm_web", ShowAnneServerWeb);
 	RegConsoleCmd("sm_getbot", GetBot);
+	RegAdminCmd("sm_restartmap", RestartMap, ADMFLAG_ROOT, "restarts map");
 	HookEvent("player_disconnect", PlayerDisconnect_Event, EventHookMode_Pre);
 	HookEvent("player_team", Event_PlayerTeam);
 }
@@ -88,7 +91,17 @@ public void OnAllPluginsLoaded(){
 	g_bGroupSystemAvailable = LibraryExists("veterans");
 	g_bUpdateSystemAvailable = LibraryExists("updater");
 	if(g_bUpdateSystemAvailable && hCvarEnableAutoupdate.IntValue){
-		Updater_AddPlugin(UPDATE_URL);
+		if(hCvarEnableAutoupdate.IntValue == 1)
+		{
+			Updater_AddPlugin(UPDATE_URL_ANNE);
+		}	
+		else if(hCvarEnableAutoupdate.IntValue == 2)
+		{
+			Updater_AddPlugin(UPDATE_URL_NEKO);
+		}else if(hCvarEnableAutoupdate.IntValue == 3)
+		{
+			Updater_AddPlugin(UPDATE_URL_VERSUS);
+		}
 		Updater_ForceUpdate();
 	}
 }
@@ -100,7 +113,17 @@ public void OnLibraryAdded(const char[] name)
 		if(!g_bUpdateSystemAvailable)
 		{
 			g_bUpdateSystemAvailable = true;
-			Updater_AddPlugin(UPDATE_URL);
+			if(hCvarEnableAutoupdate.IntValue == 1)
+			{
+				Updater_AddPlugin(UPDATE_URL_ANNE);
+			}	
+			else if(hCvarEnableAutoupdate.IntValue == 2)
+			{
+				Updater_AddPlugin(UPDATE_URL_NEKO);
+			}else if(hCvarEnableAutoupdate.IntValue == 3)
+			{
+				Updater_AddPlugin(UPDATE_URL_VERSUS);
+			}
 			Updater_ForceUpdate();
 		}
 	}
@@ -109,6 +132,19 @@ public void OnLibraryRemoved(const char[] name)
 {
     if ( StrEqual(name, "veterans") ) { g_bGroupSystemAvailable = false; }
 	else if (StrEqual(name, "updater")){ g_bUpdateSystemAvailable = false; }
+}
+
+public Action RestartMap(int client,int args)
+{
+	CrashMap();
+	return Plugin_Handled;
+}
+
+void CrashMap()
+{
+	char mapname[64];
+	GetCurrentMap(mapname, sizeof(mapname));
+	ServerCommand("changelevel %s", mapname);
 }
 
 //玩家加入游戏

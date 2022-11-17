@@ -11,14 +11,9 @@
 #include <CreateSurvivorBot>
 #include <witch_and_tankifier>
 
-
 #define CVAR_FLAGS			FCVAR_NOTIFY
-#define SCORE_DELAY_EMPTY_SERVER 3.0
-#define L4D_MAXHUMANS_LOBBY_OTHER 3
 #define IsValidClient(%1)		(1 <= %1 <= MaxClients && IsClientInGame(%1))
 #define IsValidAliveClient(%1)	(1 <= %1 <= MaxClients && IsClientInGame(%1) && IsPlayerAlive(%1))
-
-
 
 enum ZombieClass
 {
@@ -67,7 +62,6 @@ public void OnPluginStart()
 {
 	AddNormalSoundHook(view_as<NormalSHook>(OnNormalSound));
 	AddAmbientSoundHook(view_as<AmbientSHook>(OnAmbientSound));
-	RegAdminCmd("sm_restartmap", RestartMap, ADMFLAG_ROOT, "restarts map");
 	HookEvent("witch_killed", WitchKilled_Event);
 	HookEvent("round_start", RoundStart_Event);
 	HookEvent("finale_win", ResetSurvivors);
@@ -333,13 +327,6 @@ public Action OnAmbientSound(char sample[PLATFORM_MAX_PATH], int &entity, float 
 	return (StrContains(sample, "firewerks", true) > -1) ? Plugin_Stop : Plugin_Continue;
 }
 
-public Action RestartMap(int client,int args)
-{
-	CrashMap();
-	return Plugin_Handled;
-}
-
-
 public Action ResetSurvivors(Handle event, char[] name, bool dontBroadcast)
 {
 	RestoreHealth();
@@ -471,13 +458,6 @@ void RestoreHealth()
 			SetEntProp(client, Prop_Send, "m_bIsOnThirdStrike", false);
 		}
 	}
-}
-
-void CrashMap()
-{
-    char mapname[64];
-    GetCurrentMap(mapname, sizeof(mapname));
-	ServerCommand("changelevel %s", mapname);
 }
 
 void BypassAndExecuteCommand(int client, char[] strCommand, char[] strParam1)
