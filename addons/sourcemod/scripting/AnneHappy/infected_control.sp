@@ -698,9 +698,6 @@ public int CheckSIOption(int type){
 // 当前某种特感数量是否达到 Convar 值限制
 bool HasReachedLimit(int zombieclass)
 {
-	if(g_hAllChargerMode.BoolValue || g_hAllHunterMode.BoolValue){
-		return false;
-	}
 	int count = 0;	char convar[16] = {'\0'};
 	for (int infected = 1; infected <= MaxClients; infected++)
 	{
@@ -708,6 +705,12 @@ bool HasReachedLimit(int zombieclass)
 		{
 			count += 1;
 		}
+	}
+	if((g_hAllChargerMode.BoolValue || g_hAllHunterMode.BoolValue) && count == g_iSiLimit){
+		return true;
+	}
+	else if((g_hAllChargerMode.BoolValue || g_hAllHunterMode.BoolValue) && count < g_iSiLimit){
+		return false;
 	}
 	FormatEx(convar, sizeof(convar), "z_%s_limit", InfectedName[zombieclass]);
 	if (count == GetConVarInt(FindConVar(convar)))
@@ -723,7 +726,7 @@ bool HasReachedLimit(int zombieclass)
 stock void print_type(int iType, float SpawnDistance, bool Isteleport = false){
 	if (iType >= 1 && iType <=6)
 	{
-		Debug_Print(" %s生成一只%s，当前%s数量：%d,特感总数量 %d,找位最大单位距离：%f", Isteleport?"传送":"", InfectedName[iType], InfectedName[iType], g_iSINum[iType -1], g_iTotalSINum, SpawnDistance);
+		Debug_Print(" %s生成一只%s，当前%s数量：%d,特感总数量 %d, 真实特感数量：%d, 找位最大单位距离：%f", Isteleport?"传送":"", InfectedName[iType], InfectedName[iType], g_iSINum[iType -1], g_iTotalSINum, GetCurrentSINum(), SpawnDistance);
 	}
 }
 
@@ -1135,7 +1138,7 @@ public Action Timer_PositionSi(Handle timer)
 	//每1s找一次跑男或者是否所有全被控
 	if(CheckRushManAndAllPinned())
 	{
-		return Plugin_Continue;
+		return Plugin_Stop;
 	}
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -1154,7 +1157,7 @@ public Action Timer_PositionSi(Handle timer)
 						}
 						aTeleportQueue.Push(type);
 						g_iTeleportIndex += 1;
-						Debug_Print("<传送队列> %N踢出，进入传送队列，当前 <传送队列> 队列长度：%d 队列索引：%d", client, aTeleportQueue.Length, g_iTeleportIndex);
+						Debug_Print("<传送队列> %N踢出，进入传送队列，当前 <传送队列> 队列长度：%d 队列索引：%d 当前记录特感总数为：%d , 真实数量为：%d", client, aTeleportQueue.Length, g_iTeleportIndex, g_iTotalSINum, GetCurrentSINum());
 						//不再单独处理spitter防止无声口水，已经在canbeteleport处理
 						if(g_iSINum[type - 1] > 0)
 						{
@@ -1173,7 +1176,7 @@ public Action Timer_PositionSi(Handle timer)
 							g_iTotalSINum = 0;
 						}
 						KickClient(client, "传送刷特，踢出");
-						
+						Debug_Print("当前 <传送队列> 队列长度：%d 队列索引：%d 当前记录特感总数为：%d , 真实数量为：%d", aTeleportQueue.Length, g_iTeleportIndex, g_iTotalSINum, GetCurrentSINum());
 						g_iTeleCount[client] = 0;
 					}
 				}
@@ -1188,6 +1191,18 @@ public Action Timer_PositionSi(Handle timer)
 	//每1s找一次攻击目标，主要用于检测跑男，正常情况ongameframe会调用找攻击目标
 	g_iTargetSurvivor = GetTargetSurvivor();
 	return Plugin_Continue;
+}
+
+stock int GetCurrentSINum()
+{
+	int sum = 0;
+	for(int i = 0; i < MaxClients; i++){
+		if(IsInfectedBot(i) && !IsAiTank(i))
+		{
+			sum ++;
+		}
+	}
+	return sum;
 }
 
 stock bool IsSpitter(int client)
