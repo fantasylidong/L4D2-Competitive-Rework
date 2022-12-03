@@ -53,13 +53,17 @@ ConVar
 	hCvarMotdUrl,
 	hCvarEnableAutoupdate,
 	hCvarEnableInf,
+	g_cvSvAllowLobbyCo,
+	hCvarEnableAutoRemoveLobby,
 	hCvarIPUrl;
 
 
 public void OnPluginStart()
 {
 	hCvarEnableInf = CreateConVar("join_enable_inf", "1", "是否可以开启加入特感", _, true, 0.0, true, 1.0);
+	hCvarEnableAutoRemoveLobby = CreateConVar("join_enable_autoremovelobby", "1", "大厅满了是否自动删除大厅", _, true, 0.0, true, 1.0);
 	hCvarEnableAutoupdate = CreateConVar("join_autoupdate", "1", "是否开启AnneHappy核心插件自动更新（不常更新插件包的建议关闭）", _, true, 0.0, true, 3.0);
+	g_cvSvAllowLobbyCo =	FindConVar("sv_allow_lobby_connect_only");
 	hCvarMotdTitle = CreateConVar("sm_cfgmotd_title", "AnneHappy电信服");
 	hCvarMotdUrl = CreateConVar("sm_cfgmotd_url", "http://dl.trygek.com/l4d_stats/index.php");  // 以后更换为数据库控制
 	hCvarIPUrl = CreateConVar("sm_cfgip_url", "http://dl.trygek.com/index.php");	// 以后更换为数据库控制
@@ -269,6 +273,12 @@ public void OnClientPutInServer(int client)
 	{
 		//ServerCommand("sm_addbot2");
 		CreateTimer(3.0, Timer_CheckDetay, client, TIMER_FLAG_NO_MAPCHANGE);
+	}
+	
+	if(IsServerLobbyFull() && hCvarEnableAutoRemoveLobby.IntValue && L4D_LobbyIsReserved())
+	{
+		L4D_LobbyUnreserve();
+		SetAllowLobby(0);
 	}
 
 }
@@ -536,3 +546,23 @@ stock bool IsPinned(int client)
 	return bIsPinned;
 }
 
+bool IsServerLobbyFull() {
+	return GetConnectedPlayer() >= numSlots();
+}
+
+int numSlots() {
+	return LoadFromAddress(L4D_GetPointer(POINTER_SERVER) + view_as<Address>(L4D_GetServerOS() ? 380 : 384), NumberType_Int32);
+}
+
+int GetConnectedPlayer() {
+	int count = 0;
+	for (int i = 1; i <= MaxClients; i++) {
+		if (IsClientConnected(i) && !IsFakeClient(i))
+			count++;
+	}
+	return count;
+}
+
+void SetAllowLobby(int value) {
+	g_cvSvAllowLobbyCo.IntValue = value;
+}
