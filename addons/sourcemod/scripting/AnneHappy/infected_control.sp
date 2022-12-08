@@ -193,7 +193,7 @@ public void OnPluginStart()
 	g_hSpawnDistanceMin.AddChangeHook(ConVarChanged_Cvars);
 	g_hTeleportSi.AddChangeHook(ConVarChanged_Cvars);
 	g_hTeleportCheckTime.AddChangeHook(ConVarChanged_Cvars);
-	g_hTeleportDistance.AddChangeHook(ConVarChanged_Cvars);
+	//g_hTeleportDistance.AddChangeHook(ConVarChanged_Cvars);
 	g_hSiInterval.AddChangeHook(ConVarChanged_Cvars);
 	g_hIgnoreIncappedSurvivorSight.AddChangeHook(ConVarChanged_Cvars);
 	g_hEnableSIoption.AddChangeHook(ConVarChanged_Cvars);

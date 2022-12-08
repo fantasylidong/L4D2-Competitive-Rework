@@ -101,8 +101,7 @@ public void Event_PlayerSpawn(Event hEvent, const char[] sEventName, bool bDontB
 			BoomerKillTime     = 0.0;
 			g_hBoomerKillTimer = CreateTimer(0.1, Timer_KillBoomer, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
-		//防止刷特软件把特感踢出后数值没有被重置
-		ClearDamage(client);
+
 		g_iLastHealth[client] = GetClientHealth(client);
 	}
 }

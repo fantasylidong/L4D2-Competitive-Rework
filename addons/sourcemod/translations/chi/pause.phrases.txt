@@ -2,20 +2,26 @@
 {
 	"Tag"
 	{
-		"chi"	"{default}[{green}!{default}]"
+		"chi"		"[{green}!{default}]"
 	}
 	"ClientFullyLoaded"
 	{
 		"chi"	"{olive}%N {default}已经完全载入"
 	}
+	"PauseCountFormat"
+	{
+		"#format"   "{1:d},{2:d}" // 1:PauseCount(client), 2:pauseLimitCvar.IntValue
+		"chi"		" [{green}{1}{default}/{green}{2}{default}]."
+	}
 	"PauseCommand"
 	{
-		"chi"	"{olive}%N {blue}暂停游戏{default}."
+		"#format"   "{1:N},{2:s}" // 1:client, 2:sPauseCount
+		"chi"		"{olive}{1}{default} {blue}暂停游戏{default}{2}"
 	}
 	// PauseDelay_Timer
 	"PauseAction"
 	{
-		"chi"	"{red}暂停游戏"
+		"chi"	"{red}暂停游戏{default}"
 	}
 	"PauseDelay"
 	{
@@ -33,11 +39,13 @@
 	// Unpause_Cmd
 	"UnpauseSurvivors"
 	{
-		"chi"	"{olive}%N %s{default}表示 {blue}%s {default}准备完毕."
+		"#format"   "{1:N},{2:s},{3:s}" // 1:client, :2(initiatorReady && client == initiator) ? AsInitiator() : "", 3:L4D2_TeamName[clientTeam]
+		"chi"		"{olive}{1} {2}{default} 表示 {blue}{3}{default} 准备完毕."
 	}
 	"UnpauseInfected"
 	{
-		"chi"	"{olive}%N %s{default}表示 {red}%s {default}准备完毕."
+		"#format"   "{1:N},{2:s},{3:s}" // 1:client, :2(initiatorReady && client == initiator) ? AsInitiator() : "", 3:L4D2_TeamName[clientTeam]
+		"chi"		"{olive}{1} {2}{default} 表示 {red}{3}{default} 准备完毕."
 	}
 	"UnpauseInitiator"
 	{
@@ -50,11 +58,13 @@
 	// Unready_Cmd
 	"UnreadySurvivors"
 	{
-		"chi"	"{olive}%N %s{default}表示 {blue}%s {default}还未准备完毕."
+		"#format"   "{1:N},{2:s},{3:s}" // 1:client, 2:(initiatorReady && client == initiator) ? AsInitiator() : "", 3:L4D2_TeamName[clientTeam]
+		"chi"		"{olive}{1} {2}{default} 表示 {blue}{3}{default} 还未准备完毕."
 	}
 	"UnreadyInfected"
 	{
-		"chi"	"{olive}%N %s{default}表示 {red}%s {default}还未准备完毕."
+		"#format"   "{1:N},{2:s},{3:s}" // 1:client, 2:(initiatorReady && client == initiator) ? AsInitiator() : "", 3:L4D2_TeamName[clientTeam]
+		"chi"		"{olive}{1} {2}{default} 表示 {red}{3}{default} 还未准备完毕."
 	}
 	"UnreadyInitiator"
 	{
@@ -73,7 +83,7 @@
 	// AddPauseCount
 	"PauseLimit"
 	{
-		"chi"	"你已经达到你能发起的暂停上限."
+		"chi"		"你已经达到你的 {red}暂停上限{default} [{green}%d{default}]."
 	}
 	// AttemptPause
 	"PauseDeferred"
@@ -83,25 +93,22 @@
 	// Pause
 	"PausePreventSpawn"
 	{
-		"chi"	"{default}你因为暂停 {red}被阻止生成"
+		"chi"	"{default}你因为暂停被阻止{red}生成"
 	}
 	// Show_Cmd
 	"PanelShow"
 	{
-		"chi"	"准备面板： [{blue}on{default}]."
+		"chi"	"准备面板： [{blue}开启{default}]."
 	}
 	"PanelHide"
 	{
-		"chi"	"准备面板： [{red}off{default}]."
+		"chi"	"准备面板： [{red}关闭{default}]."
 	}
 	// UpdatePanel
 	"PanelSlots"
 	{
-		"chi"	"▸ 服务器: %s\n▸ 位置: %d/%d"
-	}
-	"PanelDate"
-	{
-		"chi"	"▸ %m/%d/%Y - %I:%M%p"
+		"#format"   "{1:s},{2:d},{3:d}" // 1:info, 2:GetSeriousClientCount(), 3:FindConVar("sv_maxplayers").IntValue
+		"chi"		"▸ 服务器: {1}\n▸ 位置: {2}/{3}"
 	}
 	"PanelTitle"
 	{

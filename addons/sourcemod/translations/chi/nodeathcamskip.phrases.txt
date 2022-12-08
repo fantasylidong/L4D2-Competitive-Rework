@@ -1,0 +1,23 @@
+"Phrases"
+{
+	"Tag"
+	{
+		"chi"		"{red}[{default}Exploit{red}]{default}"
+	}
+	"DeathTimer"
+	{
+		"chi"		"{olive}%N{default} 尝试了跳过死亡时间."
+	}
+	"UnableToJoin"
+	{
+		"chi"		"你在 {red}%.1f{default} 秒内将无法加入感染者团队."
+	}
+	"Moved"
+	{
+		"chi"		"时间到了之后，将会自动将你移动到感染者团队."
+	}
+	"SlotsReserved"
+	{
+		"chi"		"这个队伍目前有 {olive}保留名额{default}."
+	}
+}

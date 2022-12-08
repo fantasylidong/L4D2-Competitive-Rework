@@ -44,23 +44,23 @@ public Action Listener_Join(int client, const char[] command, int argc) {
             if (GetInfectedPlayers() == (FindConVar("z_max_player_zombies")).IntValue) { return Plugin_Handled; }
 
             if (Blocked[client]) {
-
+                
                 // Warn Others.
                 if (!bSkipPrint[client])
                 {
-                    CPrintToChatAll("{red}[{default}Exploit{red}] {olive}%N {default}tried skipping the Death Timer.", client);
+                    CPrintToChatAll("%t %t", "Tag", "DeathTimer", client);
                     bSkipPrint[client] = true;
                 }
 
                 // Tell Offender.
-                CPrintToChat(client, "{red}[{default}Exploit{red}] {default}You will be unable to join the Team for {red}%.1f {default}Seconds.", (fSavedTime[client] + 6.0) - GetGameTime());
-                CPrintToChat(client, "{red}[{default}Exploit{red}] {default}You will be moved automatically.");
+                CPrintToChat(client, "%t %t", "Tag", "UnableToJoin", (fSavedTime[client] + 6.0) - GetGameTime());
+                CPrintToChat(client, "%t %t", "Tag", "Moved");
 
                 return Plugin_Handled;
             }
 
             if (GetInfectedPlayers() + GetBlockedPlayers() == (FindConVar("z_max_player_zombies").IntValue)) {
-                CPrintToChat(client, "{red}[{default}!{red}] {default}This team currently has slots {olive}reserved{default}.");
+                CPrintToChat(client, "%t %t", "Tag", "SlotsReserved");
                 return Plugin_Handled;
             }
         }
