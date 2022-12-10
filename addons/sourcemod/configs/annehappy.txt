@@ -56,27 +56,27 @@
 		{
 			"message" "关闭多人运动"
 		}
-		"exec vote/duoren/duoren2.cfg"
+		"exec vote/Anneduoren/duoren2.cfg"
 		{
 			"message" "2人运动"
 		}
-		"exec vote/duoren/duoren3.cfg"
+		"exec vote/Anneduoren/duoren3.cfg"
 		{
 			"message" "3人运动"
 		}
-		"exec vote/duoren/duoren5.cfg"
+		"exec vote/Anneduoren/duoren5.cfg"
 		{
 			"message" "5人运动"
 		}
-		"exec vote/duoren/duoren6.cfg"
+		"exec vote/Anneduoren/duoren6.cfg"
 		{
 			"message" "6人运动"
 		}
-		"exec vote/duoren/duoren7.cfg"
+		"exec vote/Anneduoren/duoren7.cfg"
 		{
 			"message" "7人运动"
 		}
-		"exec vote/duoren/duoren8.cfg"
+		"exec vote/Anneduoren/duoren8.cfg"
 		{
 			"message" "8人运动"
 		}
