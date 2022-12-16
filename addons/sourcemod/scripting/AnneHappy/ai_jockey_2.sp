@@ -8,7 +8,7 @@
 #include <treeutil>
 
 #define CVAR_FLAG FCVAR_NOTIFY
-#define SPECIAL_JUMP_DIST 200.0
+#define SPECIAL_JUMP_DIST 250.0
 #define BACK_JUMP_DIST 70.0
 #define FREEZE_MAX_TIME 0.8
 #define SHOVE_INTERVAL 1.0
@@ -39,10 +39,10 @@ public Plugin myinfo =
 }
 
 // ConVars
-ConVar g_hBhopSpeed, g_hStartHopDistance, g_hJockeyStumbleRadius, g_hJockeyLeapTime, g_hJockeyAirAngles,
+ConVar g_hBhopSpeed, g_hStartHopDistance, g_hJockeyStumbleRadius, g_hJockeyLeapTime,
 		g_hSpecialJumpAngle, g_hSpecialJumpChance, g_hActionChance, g_hAllowInterControl, g_hJockeySpeed;
-// Ints
-int g_iState[MAXPLAYERS + 1][8], g_iActionArray[ACTION_COUNT];
+// Ints 
+int g_iState[MAXPLAYERS + 1][8], g_iActionArray[ACTION_COUNT], g_iLockViewMode[MAXPLAYERS + 1] = { 0 };
 // Float
 float g_fShovedTime[MAXPLAYERS + 1] = {0.0}, g_fNoActionTime[MAXPLAYERS + 1][2], g_fPlayerShovedTime[MAXPLAYERS + 1] = {0.0};
 // Bools
@@ -60,7 +60,7 @@ public void OnPluginStart()
 	g_hSpecialJumpChance = CreateConVar("ai_JockeySpecialJumpChance", "60", "Jockey 有多少概率执行骗推", CVAR_FLAG, true, 0.0, true, 100.0);
 	g_hActionChance = CreateConVar("ai_jockeyNoActionChance", "20,20,60", "Jockey 执行以下行为的概率（冻结行动 [时间 0 - FREEZE_MAX_TIME 秒随机]，向后跳，高跳）逗号分割", CVAR_FLAG, true, 0.0, true, 100.0);
 	g_hAllowInterControl = CreateConVar("ai_JockeyAllowInterControl", "0", "Jockey 优先找被这些特感控制的生还者，抢控或补控（不想要这个功能可以设置为 0）", CVAR_FLAG);
-	g_hJockeyAirAngles = CreateConVar("ai_JockeyAirAngles", "60.0", "Jockey的速度方向与到目标的向量方向的距离大于这个角度，改变方向", FCVAR_NOTIFY, true, 0.0, true, 180.0);
+	//g_hJockeyAirAngles = CreateConVar("ai_JockeyAirAngles", "60.0", "Jockey的速度方向与到目标的向量方向的距离大于这个角度，改变方向", FCVAR_NOTIFY, true, 0.0, true, 180.0);
 	g_hJockeyLeapTime =	FindConVar("z_jockey_leap_time");
 	// 其他
 	g_hJockeySpeed = FindConVar("z_jockey_speed");
@@ -90,6 +90,7 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 {
 	if (!IsAiJockey(jockey) || !IsPlayerAlive(jockey)) { return Plugin_Continue; }
 	float fSpeed[3] = {0.0}, fCurrentSpeed = 0.0, fJockeyPos[3] = {0.0};
+	int actionPercent;
 	GetEntPropVector(jockey, Prop_Data, "m_vecVelocity", fSpeed);
 	fCurrentSpeed = SquareRoot(Pow(fSpeed[0], 2.0) + Pow(fSpeed[1], 2.0));
 	GetClientAbsOrigin(jockey, fJockeyPos);
@@ -110,6 +111,7 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 	fBuffer = UpdatePosition(jockey, iTarget, g_hBhopSpeed.FloatValue);
 	// 当前速度不大于 130.0 或距离大于 StartHopDistance，不进行操作
 	if (fCurrentSpeed <= 130.0 || fDistance > g_hStartHopDistance.FloatValue) { return Plugin_Continue; }
+	LockView(jockey, iTarget);
 	if (iFlags & FL_ONGROUND)
 	{
 		// Jockey 距离目标的距离小于 SPECIAL_JUMP_DIST
@@ -134,11 +136,7 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 				buttons |= IN_ATTACK;
 				buttons |= IN_JUMP;
 				buttons |= IN_ATTACK2;
-				float subtractVec[3] = {0.0}, eyeAngleVec[3] = {0.0};
-				SubtractVectors(fTargetPos, fJockeyPos, subtractVec);
-				NormalizeVector(subtractVec, subtractVec);
-				GetVectorAngles(subtractVec, eyeAngleVec);
-				TeleportEntity(jockey, NULL_VECTOR, eyeAngleVec, NULL_VECTOR);
+				g_iLockViewMode[jockey] = 1;
 				SetState(jockey, 0, IN_ATTACK);
 				#if (DEBUG_ALL)
 				{
@@ -152,13 +150,14 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 				// 获取骗推概率
 				if (getRandomIntInRange(0, 100) <= g_hSpecialJumpChance.IntValue && fDistance >= BACK_JUMP_DIST && (GetState(jockey, 0) & IN_JUMP))
 				{
-					int actionPercent = getRandomIntInRange(0, 100);
+					actionPercent = getRandomIntInRange(0, 100);
 					// 概率冻结 Jockey，Jockey 解冻后仍然在地上，无需设置状态为 IN_ATTACK，进行其他操作
 					if (actionPercent <= g_iActionArray[ACTION_FROZEN]
 						&& g_fNoActionTime[jockey][0] == 0.0)
 					{
 						g_fNoActionTime[jockey][0] = GetGameTime();
 						g_fNoActionTime[jockey][1] = getRandomFloatInRange(0.0, FREEZE_MAX_TIME);
+						g_iLockViewMode[jockey] = 1;
 						SetEntityMoveType(jockey, MOVETYPE_NONE);
 						CreateTimer(g_fNoActionTime[jockey][1], setMoveTypeToCustomHandler, jockey);
 						#if (DEBUG_ALL)
@@ -178,6 +177,7 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 						NormalizeVector(subtractVec, subtractVec);
 						ScaleVector(subtractVec, g_hJockeySpeed.FloatValue);
 						buttons |= IN_JUMP;
+						g_iLockViewMode[jockey] = 2;
 						TeleportEntity(jockey, NULL_VECTOR, NULL_VECTOR, subtractVec);
 						SetState(jockey, 0, IN_ATTACK);
 						#if (DEBUG_ALL)
@@ -193,6 +193,7 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 						float eyeAngles[3] = {0.0}, angle = getRandomFloatInRange(30.0, 60.0);
 						eyeAngles = angles;
 						eyeAngles[0] = -angle;
+						g_iLockViewMode[jockey] = 0;
 						TeleportEntity(jockey, NULL_VECTOR, eyeAngles, NULL_VECTOR);
 						buttons |= IN_ATTACK;
 						buttons |= IN_ATTACK2;
@@ -214,11 +215,12 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 			// 目标正在看着 Jockey
 			if (IsTargetWatchingAttacker(jockey, iTarget, g_hSpecialJumpAngle.IntValue))
 			{
+				g_iLockViewMode[jockey] = 0;
 				float eyeAngles[3] = {0.0}, eyeAngleVec[3] = {0.0};
 				GetClientEyeAngles(jockey, eyeAngles);
 				// 50% 概率向左向右跳
-				if (getRandomIntInRange(0, 1)) { eyeAngles[1] += getRandomIntInRange(30, 180); }
-				else { eyeAngles[1] -= getRandomIntInRange(30, 180); }
+				if (getRandomIntInRange(0, 1)) { eyeAngles[1] += getRandomIntInRange(15, 45); }
+				else { eyeAngles[1] -= getRandomIntInRange(15, 45); }
 				TeleportEntity(jockey, NULL_VECTOR, eyeAngles, NULL_VECTOR);
 				GetAngleVectors(eyeAngles, eyeAngleVec, NULL_VECTOR, NULL_VECTOR);
 				NormalizeVector(eyeAngleVec, eyeAngleVec);
@@ -231,69 +233,68 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 				}
 				#endif
 			}
-			else if (!g_bCanAttackPinned[jockey] && (buttons & IN_FORWARD) || (buttons & IN_MOVELEFT) || (buttons & IN_MOVERIGHT)) { ClientPush(jockey, fBuffer); }
-		}
-		if (GetState(jockey, 0) & IN_ATTACK)
-		{
-			float angle = getRandomFloatInRange(0.0, 20.0), subtractVec[3] = {0.0};
-			angles[0] = -angle;
-			TeleportEntity(jockey, NULL_VECTOR, angles, NULL_VECTOR);
-			SubtractVectors(fTargetPos, fJockeyPos, subtractVec);
-			NormalizeVector(subtractVec, subtractVec);
-			ScaleVector(subtractVec, g_hBhopSpeed.FloatValue);
-			buttons |= IN_JUMP;
-			ClientPush(jockey, subtractVec);
-			if (getRandomIntInRange(0, 1)) { buttons |= IN_DUCK; }
-			else { buttons |= IN_ATTACK2; }
-			SetState(jockey, 0, IN_JUMP);
+			else if (!g_bCanAttackPinned[jockey] && (buttons & IN_FORWARD) || (buttons & IN_MOVELEFT) || (buttons & IN_MOVERIGHT))
+			{ 
+				g_iLockViewMode[jockey] = 1;
+				ClientPush(jockey, fBuffer); 
+			}
 		}
 	}
 	else
 	{
 		buttons &= ~IN_JUMP;
 		buttons &= ~IN_ATTACK;
-		// 距离 <= 2 * SPECIAL_JUMP_DIST 时，概率跳的时候向后看,如果不向后看，就看目标生还者
-		if (fDistance <= SPECIAL_JUMP_DIST * 2.0)
-		{
-			float subtractVec[3] = {0.0}, eyeAngleVec[3] = {0.0};
-			SubtractVectors(fTargetPos, fJockeyPos, subtractVec);
-			NegateVector(subtractVec);
-			NormalizeVector(subtractVec, subtractVec);
-			GetVectorAngles(subtractVec, eyeAngleVec);
-			TeleportEntity(jockey, NULL_VECTOR, eyeAngleVec, NULL_VECTOR);
-			//太近不允许强制换方向
-			if(fDistance > 150.0){
-				//PrintToConsoleAll("检测猴子在空中");
-				float fAngles[3], new_velvec[3] = {0.0}, self_target_vec[3] = {0.0};
-				GetVectorAngles(fSpeed, fAngles);
-				fAngles[0] = fAngles[2] = 0.0;
-				GetAngleVectors(fAngles, new_velvec, NULL_VECTOR, NULL_VECTOR);
+		/*
+		//太近不允许强制换方向
+		if(fDistance > 150.0){
+			//PrintToConsoleAll("检测猴子在空中");
+			float fAngles[3], new_velvec[3] = {0.0}, self_target_vec[3] = {0.0};
+			GetVectorAngles(fSpeed, fAngles);
+			fAngles[0] = fAngles[2] = 0.0;
+			GetAngleVectors(fAngles, new_velvec, NULL_VECTOR, NULL_VECTOR);
+			NormalizeVector(new_velvec, new_velvec);
+			// 保存当前位置
+			// 生还比特感高，关闭z方向
+			if(fTargetPos[2] > fTargetPos[2])
+				fJockeyPos[2] = fTargetPos[2] = 0.0;
+			MakeVectorFromPoints(fJockeyPos, fTargetPos, self_target_vec);
+			NormalizeVector(self_target_vec, self_target_vec);
+			float fAngleDifference = RadToDeg(ArcCosine(GetVectorDotProduct(new_velvec, self_target_vec)));
+			//PrintToConsoleAll("速度夹角：%f", fAngleDifference);
+			// 计算距离
+			if (fAngleDifference > g_hJockeyAirAngles.IntValue && fAngleDifference < 120.0)
+			{
+				//重新设置方向
+				MakeVectorFromPoints(fJockeyPos, fTargetPos, new_velvec);
+				//GetVectorAngles(new_velvec, fAngles);
 				NormalizeVector(new_velvec, new_velvec);
-				// 保存当前位置
-				// 生还比特感高，关闭z方向
-				if(fTargetPos[2] > fTargetPos[2])
-					fJockeyPos[2] = fTargetPos[2] = 0.0;
-				MakeVectorFromPoints(fJockeyPos, fTargetPos, self_target_vec);
-				NormalizeVector(self_target_vec, self_target_vec);
-				float fAngleDifference = RadToDeg(ArcCosine(GetVectorDotProduct(new_velvec, self_target_vec)));
-				//PrintToConsoleAll("速度夹角：%f", fAngleDifference);
-				// 计算距离
-				if (fAngleDifference > g_hJockeyAirAngles.IntValue && fAngleDifference < 120.0)
-				{
-					//重新设置方向
-					MakeVectorFromPoints(fJockeyPos, fTargetPos, new_velvec);
-					//GetVectorAngles(new_velvec, fAngles);
-					NormalizeVector(new_velvec, new_velvec);
-					//NegateVector(new_velvec);
-					// 按照原来速度向量长度 + 缩放长度缩放修正后的速度向量，觉得太阴间了可以修改
-					ScaleVector(new_velvec, fCurrentSpeed * 0.9);
-					//PrintToConsoleAll("方向夹角为： %f,强制转向后的速度: %f", fAngleDifference, GetVectorLength(new_velvec));
-					TeleportEntity(jockey, NULL_VECTOR, NULL_VECTOR, new_velvec);
-				}
+				//NegateVector(new_velvec);
+				// 按照原来速度向量长度 + 缩放长度缩放修正后的速度向量，觉得太阴间了可以修改
+				ScaleVector(new_velvec, fCurrentSpeed * 0.9);
+				//PrintToConsoleAll("方向夹角为： %f,强制转向后的速度: %f", fAngleDifference, GetVectorLength(new_velvec));
+				TeleportEntity(jockey, NULL_VECTOR, NULL_VECTOR, new_velvec);
 			}
 		}
+		*/
 	}
 	return Plugin_Continue;
+}
+//mode 0 关闭 ，1 锁定目标 2 倒着锁定目标
+stock void LockView(int client, int target)
+{
+	if(g_iLockViewMode[client] == 0)
+		return;
+	float self_eye_pos[3] = {0.0}, targetpos[3] = {0.0}, look_at[3] = {0.0};
+	GetClientEyePosition(client, self_eye_pos);
+	GetClientAbsOrigin(target, targetpos);
+	targetpos[2] += 45.0;
+	MakeVectorFromPoints(self_eye_pos, targetpos, look_at);
+	if(g_iLockViewMode[client] == 2)
+	{
+		NegateVector(look_at);
+	}
+	GetVectorAngles(look_at, look_at);
+	TeleportEntity(client, NULL_VECTOR, look_at, NULL_VECTOR);
 }
 
 public Action L4D2_OnChooseVictim(int specialInfected, int &curTarget)
