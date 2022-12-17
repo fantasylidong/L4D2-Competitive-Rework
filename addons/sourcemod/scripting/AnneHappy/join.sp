@@ -43,10 +43,10 @@ public Plugin myinfo =
 	version = "1.1",
 	url = "https://github.com/fantasylidong/CompetitiveWithAnne"
 };
-#define UPDATE_URL_ANNE "http://dl.trygek.com/left4dead2/addons/sourcemod/Anne_Updater_All.txt"
+#define UPDATE_URL_ANNE "http://dl.trygek.com/left4dead2/addons/sourcemod/Anne_Updater.txt"
 #define UPDATE_URL_NEKO "http://dl.trygek.com/left4dead2/addons/sourcemod/Neko_Updater.txt"
 #define UPDATE_URL_VERSUS "http://dl.trygek.com/left4dead2/addons/sourcemod/Versus_Updater.txt"
-#define UPDATE_URL_ANNEALL "http://dl.trygek.com/left4dead2/addons/sourcemod/Anne_Updater.txt"
+#define UPDATE_URL_ANNEALL "http://dl.trygek.com/left4dead2/addons/sourcemod/Anne_Updater_All.txt"
 
 bool  g_bUpdateSystemAvailable = false, g_bGroupSystemAvailable = false;
 
@@ -107,7 +107,9 @@ public void OnPluginStart()
 
 public void UpdateStatuChange(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	if(g_bUpdateSystemAvailable && hCvarEnableAutoupdate.IntValue){
+	Updater_RemovePlugin();
+	if(g_bUpdateSystemAvailable && hCvarEnableAutoupdate.IntValue > 0){
+		//LogError("[updater]:%d", hCvarEnableAutoupdate.IntValue);
 		if(hCvarEnableAutoupdate.IntValue == 1)
 		{
 			Updater_AddPlugin(UPDATE_URL_ANNEALL);
@@ -151,56 +153,16 @@ void ChangeLobby()
 public void OnAllPluginsLoaded(){
 	g_bGroupSystemAvailable = LibraryExists("veterans");
 	g_bUpdateSystemAvailable = LibraryExists("updater");
-	if(g_bUpdateSystemAvailable && hCvarEnableAutoupdate.IntValue){
-		if(hCvarEnableAutoupdate.IntValue == 1)
-		{
-			Updater_AddPlugin(UPDATE_URL_ANNEALL);
-		}	
-		else if(hCvarEnableAutoupdate.IntValue == 2)
-		{
-			Updater_AddPlugin(UPDATE_URL_NEKO);
-		}else if(hCvarEnableAutoupdate.IntValue == 3)
-		{
-			Updater_AddPlugin(UPDATE_URL_VERSUS);
-		}
-		else if(hCvarEnableAutoupdate.IntValue == 4)
-		{
-			Updater_AddPlugin(UPDATE_URL_ANNE);
-		}
-		Updater_ForceUpdate();
-	}
 }
 public void OnLibraryAdded(const char[] name)
 {
     if ( StrEqual(name, "veterans") ) { g_bGroupSystemAvailable = true; }
-	else if(StrEqual(name, "updater") && hCvarEnableAutoupdate.IntValue)
-	{
-		if(!g_bUpdateSystemAvailable)
-		{
-			g_bUpdateSystemAvailable = true;
-			if(hCvarEnableAutoupdate.IntValue == 1)
-			{
-				Updater_AddPlugin(UPDATE_URL_ANNEALL);
-			}	
-			else if(hCvarEnableAutoupdate.IntValue == 2)
-			{
-				Updater_AddPlugin(UPDATE_URL_NEKO);
-			}else if(hCvarEnableAutoupdate.IntValue == 3)
-			{
-				Updater_AddPlugin(UPDATE_URL_VERSUS);
-			}
-			else if(hCvarEnableAutoupdate.IntValue == 4)
-			{
-				Updater_AddPlugin(UPDATE_URL_ANNE);
-			}
-			Updater_ForceUpdate();
-		}
-	}
+	else if(StrEqual(name, "updater")) { g_bUpdateSystemAvailable = true; }
 }
 public void OnLibraryRemoved(const char[] name)
 {
     if ( StrEqual(name, "veterans") ) { g_bGroupSystemAvailable = false; }
-	else if (StrEqual(name, "updater")){ g_bUpdateSystemAvailable = false; Updater_RemovePlugin();}
+	else if (StrEqual(name, "updater")){ g_bUpdateSystemAvailable = false; }
 }
 
 public void SteamWorks_OnValidateClient(int ownerauthid, int authid)

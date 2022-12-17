@@ -21,11 +21,9 @@
 #define NAV_MESH_HEIGHT 20.0
 #define PLAYER_HEIGHT 72.0
 #define PLAYER_CHEST 45.0
-// 生成NAV之间nav距离应该大于 NAV_DISTANCE
-#define NAV_DISTANCE 100.0
-#define HIGHERPOS 500.0
-#define HIGHERPOSMULT 1.9
-#define NORMALPOSMULT 1.4
+#define HIGHERPOS 300.0
+#define HIGHERPOSMULT 1.8
+#define NORMALPOSMULT 1.3
 
 // 启用特感类型
 #define ENABLE_SMOKER			(1 << 0)		
@@ -130,7 +128,7 @@ Handle
 ArrayList 
 	aThreadHandle, 						//刷特线程
 	aTeleportQueue,						//传送队列
-	aSpawnNavList,						//储存特感生成的navid，用来限制特感不能生成在同一块Navid上
+	//aSpawnNavList,						//储存特感生成的navid，用来限制特感不能生成在同一块Navid上
 	aSpawnQueue;						//刷特队列
 
 public APLRes AskPluginLoad2(Handle plugin, bool late, char[] error, int err_max)
@@ -217,7 +215,7 @@ public void OnPluginStart()
 	aThreadHandle = new ArrayList();
 	aSpawnQueue = new ArrayList();
 	aTeleportQueue = new ArrayList();
-	aSpawnNavList = new ArrayList();
+	//aSpawnNavList = new ArrayList();
 	// GetCvars
 	GetCvars();
 	GetSiLimit();
@@ -382,7 +380,7 @@ public void InitStatus(){
 	aThreadHandle.Clear();
 	aSpawnQueue.Clear();
 	aTeleportQueue.Clear();
-	aSpawnNavList.Clear();
+	//aSpawnNavList.Clear();
 	g_iQueueIndex = 0;
 	g_iTeleportIndex = 0;
 	g_iWaveTime=0;
@@ -487,12 +485,14 @@ public void OnGameFrame()
 	}
 	if (g_bIsLate)
 	{
+		/*
 		// 当nav存储长度超过特感生成上限时，删去第一个
 		if (aSpawnNavList.Length > g_iSiLimit)
 		{
 			//Debug_Print("<nav记录> 当前队列长度：%d, 超过特感上限，清除队列第一个元素", aSpawnNavList.Length);
 			aSpawnNavList.Erase(0);
 		}
+		*/
 		if (g_iTotalSINum < g_iSiLimit)
 		{
 			if(g_iTeleportIndex > 0)
@@ -581,11 +581,11 @@ stock bool GetSpawnPos(float fSpawnPos[3], int g_iTargetSurvivor, float SpawnDis
 		//增加高度，增加刷房顶的几率
 		if(SpawnDistance < 500.0)
 		{
-			fMaxs[2] = fSurvivorPos[2] + 800.0;
+			fMaxs[2] = fSurvivorPos[2] + 1000.0;
 		}
 		else
 		{
-			fMaxs[2] = fSurvivorPos[2] + SpawnDistance + 300.0;
+			fMaxs[2] = fSurvivorPos[2] + SpawnDistance + 500.0;
 		}
 		fMins[0] = fSurvivorPos[0] - SpawnDistance;
 		fMaxs[0] = fSurvivorPos[0] + SpawnDistance;
@@ -624,16 +624,17 @@ stock bool GetSpawnPos(float fSpawnPos[3], int g_iTargetSurvivor, float SpawnDis
 	}
 	return false;
 }
-
+/*
 stock bool Is_Nav_already_token(Address nav)
 {
 	for(int i = 0; i < aSpawnNavList.Length; i++)
 	{
-		if(nav == aSpawnNavList.Get(i) || L4D2_NavAreaBuildPath(nav, aSpawnNavList.Get(i), NAV_DISTANCE, TEAM_INFECTED, false))
+		if(nav == aSpawnNavList.Get(i))
 			return true;
 	}
 	return false;
 }
+*/
 
 stock bool SpawnInfected(float fSpawnPos[3], float SpawnDistance, int iZombieClass, bool IsTeleport = false)
 {
@@ -686,7 +687,7 @@ stock bool SpawnInfected(float fSpawnPos[3], float SpawnDistance, int iZombieCla
 				int entityindex = L4D2_SpawnSpecial(iZombieClass, fSpawnPos, view_as<float>({0.0, 0.0, 0.0}));
 				if (IsValidEntity(entityindex) && IsValidEdict(entityindex))
 				{
-					aSpawnNavList.Push(nav1);
+					//aSpawnNavList.Push(nav1);
 					//Debug_Print("<nav记录> 当前入队nav：%d，当前队列长度：%d", nav1, aSpawnNavList.Length);
 					return true;
 				}
@@ -856,11 +857,13 @@ public Action SpawnNewInfected(Handle timer)
 			}
 		}
 		g_fSpawnDistance = g_fSpawnDistanceMin;
+		/*
 		//优化性能，每波刷新前清除aSpawnNavList队列中的值，但是如果刷特时间很短，这个优化估计起的作用不大
 		if(g_iSpawnMaxCount == 0)
 		{
 			aSpawnNavList.Clear();
 		}
+		*/
 
 		g_iSpawnMaxCount += 1;
 		if (g_iSiLimit == g_iSpawnMaxCount){
@@ -942,7 +945,7 @@ bool IsOnValidMesh(float fReferencePos[3], bool IsTeleport = false)
 	{
 		distance = g_fSpawnDistance;
 	}
-	if (pNavArea != Address_Null && (distance >= g_fSpawnDistanceMax || !Is_Nav_already_token(pNavArea)))
+	if (pNavArea != Address_Null)
 	{
 		return true;
 	}
