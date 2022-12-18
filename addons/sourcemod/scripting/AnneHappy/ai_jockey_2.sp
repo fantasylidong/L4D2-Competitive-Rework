@@ -178,7 +178,7 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 					&& actionPercent <= g_iActionArray[ACTION_JUMP_HIGH])
 				{
 					// 高跳
-					angles[0] = getRandomFloatInRange(35.0, 50.0) * -1.0;
+					angles[0] = getRandomFloatInRange(30.0, 45.0) * -1.0;
 					TeleportEntity(jockey, NULL_VECTOR, angles, NULL_VECTOR);
 					buttons |= IN_ATTACK;
 					SetState(jockey, 0, IN_ATTACK);
