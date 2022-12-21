@@ -627,7 +627,6 @@ public void OnPluginStart()
     RegAdminCmd("sm_print_cvars_l4d2_scripted_hud", CmdPrintCvars, ADMFLAG_ROOT, "Print the plugin related cvars and their respective values to the console.");
     RegConsoleCmd("sm_spechudon", ShowSpecHud, "打开spechud");
     RegConsoleCmd("sm_spechudoff", offSpecHud, "打开spechud");
-    CreateTimer(1.0, TimerAliveTankCheck, _, TIMER_REPEAT);
 }
 
 /****************************************************************************************************/
@@ -1008,7 +1007,8 @@ public void HookEvents()
         g_bEventsHooked = true;
 
         HookEvent("tank_spawn", Event_TankSpawn);
-
+        HookEvent("player_death", Event_TankKilled);
+        HookEvent("round_start", Event_RoundStart);
         return;
     }
 
@@ -1017,27 +1017,44 @@ public void HookEvents()
         g_bEventsHooked = false;
 
         UnhookEvent("tank_spawn", Event_TankSpawn);
-
+        UnhookEvent("player_death", Event_TankKilled);
+        UnhookEvent("round_start", Event_RoundStart);
         return;
     }
 }
 
 /****************************************************************************************************/
 
+public void Event_TankKilled(Handle event, const char[] name, bool dontBroadcast)
+{
+	if (!g_bAliveTank) return; // No tank in play; no damage to record
+	
+	int victim = GetClientOfUserId(GetEventInt(event, "userid"));
+
+	if(IsAiTank(victim))
+    {
+        g_bAliveTank = false;
+    }
+}
+
+public  void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
+{
+	g_bAliveTank = false;
+}
+
+bool IsAiTank(int tank)
+{
+	if (tank != 0 && GetClientTeam(tank) == 3 && GetEntProp(tank, Prop_Send, "m_zombieClass") == 8)
+	{
+		return true;
+	}
+	return false;
+}
+
 public void Event_TankSpawn(Event event, const char[] name, bool dontBroadcast)
 {
     if (g_bCvar_BlinkTank)
         g_bAliveTank = true;
-}
-
-/****************************************************************************************************/
-
-public Action TimerAliveTankCheck(Handle timer)
-{
-    if (g_bAliveTank)
-        g_bAliveTank = HasAnyTankAlive();
-
-    return Plugin_Continue;
 }
 
 /****************************************************************************************************/
