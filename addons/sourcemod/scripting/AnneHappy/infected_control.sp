@@ -21,7 +21,7 @@
 #define PLAYER_HEIGHT 72.0
 #define PLAYER_CHEST 45.0
 #define HIGHERPOS 300.0
-#define HIGHERPOSADDDISTANCE 300.0
+#define HIGHERPOSADDDISTANCE 400.0
 #define NORMALPOSMULT 1.4
 
 // 启用特感类型
@@ -604,7 +604,7 @@ stock bool GetSpawnPos(float fSpawnPos[3], int g_iTargetSurvivor, float SpawnDis
 		while (PlayerVisibleToSDK(fSpawnPos, IsTeleport) || !IsOnValidMesh(fSpawnPos) || IsPlayerStuck(fSpawnPos) || ((g_bPickRushMan || IsTeleport) && !Is_Pos_Ahead(fSpawnPos, g_iTargetSurvivor)))
 		{
 			count2++;
-			if(count2 > 30)
+			if(count2 > 20)
 			{
 				return false;
 			}
@@ -947,7 +947,7 @@ bool IsInfectedBot(int client)
 bool IsOnValidMesh(float fReferencePos[3])
 {
 	Address pNavArea = L4D2Direct_GetTerrorNavArea(fReferencePos);
-	if (pNavArea != Address_Null)
+	if (pNavArea != Address_Null && !(L4D_GetNavArea_SpawnAttributes(pNavArea) & CHECKPOINT))
 	{
 		return true;
 	}
@@ -1583,12 +1583,10 @@ bool Is_Pos_Ahead(float refpos[3], int target = -1)
 	}
 	if (IsValidSurvivor(target))
 	{
-		float targetpos[3] = {0.0};
-		GetClientAbsOrigin(target, targetpos);
-		Address pTargetNav = L4D2Direct_GetTerrorNavArea(targetpos);
+		Address pTargetNav;
 		if (pTargetNav == Address_Null)
 		{
-			pTargetNav = view_as<Address>(L4D_GetNearestNavArea(refpos, 300.0));
+			pTargetNav = L4D_GetLastKnownArea(target);
 		}
 		target_flow = Calculate_Flow(pTargetNav);
 	}
