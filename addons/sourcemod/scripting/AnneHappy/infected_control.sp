@@ -13,15 +13,12 @@
 #define CVAR_FLAG FCVAR_NOTIFY
 #define TEAM_SURVIVOR 2
 #define TEAM_INFECTED 3
-// 特感种类
-#define ZC_SPITTER 4
-#define ZC_TANK 8
 // 数据
 #define NAV_MESH_HEIGHT 20.0
 #define PLAYER_HEIGHT 72.0
 #define PLAYER_CHEST 45.0
 #define HIGHERPOS 300.0
-#define HIGHERPOSADDDISTANCE 400.0
+#define HIGHERPOSADDDISTANCE 300.0
 #define NORMALPOSMULT 1.4
 
 // 启用特感类型
@@ -127,6 +124,7 @@ bool
 // Handle
 Handle 
 	g_hCheckShouldSpawnOrNot = INVALID_HANDLE,	//1s检测一次是否开启刷特进程的维护进程
+	g_hSpawnProcess = INVALID_HANDLE,			//刷特 handle
 	g_hTeleHandle = INVALID_HANDLE, 			//传送sdk Handle
 	g_hRushManNotifyForward = INVALID_HANDLE; 	//检测到跑男提醒Target_limit插件放开单人目标限制
 // ArrayList
@@ -378,7 +376,14 @@ public void InitStatus(){
 		delete g_hCheckShouldSpawnOrNot;
 		g_hCheckShouldSpawnOrNot = INVALID_HANDLE;
 	}
+	if (g_hSpawnProcess != INVALID_HANDLE)
+	{
+		KillTimer(g_hSpawnProcess);
+		g_hSpawnProcess = INVALID_HANDLE;
+	}
+	
 	g_bPickRushMan = false;
+	g_bShouldCheck = false;
 	g_bIsLate = false;
 	g_iSpawnMaxCount = 0;
 	g_fLastSISpawnTime = 0.0;
@@ -405,7 +410,7 @@ public void evt_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	InitStatus();
 	CreateTimer(0.1, MaxSpecialsSet);
-	CreateTimer(3.0, SafeRoomReset, _, TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(1.0, SafeRoomReset, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public void evt_RoundEnd(Event event, const char[] name, bool dontBroadcast)
@@ -826,25 +831,25 @@ public Action SpawnFirstInfected(Handle timer)
 public Action SpawnNewInfected(Handle timer)
 {
 	SpawnInfectedSettings();
+	g_hSpawnProcess = INVALID_HANDLE;
 	return Plugin_Stop;
 }
 
 public void SpawnInfectedSettings()
 {
-	g_fLastSISpawnTime = GetGameTime();
-	g_iSurvivorNum = 0;
-	g_iLastSpawnTime = 0;
-	g_bShouldCheck = true;
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsValidSurvivor(client) && IsPlayerAlive(client))
-		{
-			g_iSurvivors[g_iSurvivorNum] = client;
-			g_iSurvivorNum += 1;
-		}
-	}
 	if (g_bIsLate)
 	{
+		g_fLastSISpawnTime = GetGameTime();
+		g_iSurvivorNum = 0;
+		g_iLastSpawnTime = 0;
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsValidSurvivor(client) && IsPlayerAlive(client))
+			{
+				g_iSurvivors[g_iSurvivorNum] = client;
+				g_iSurvivorNum += 1;
+			}
+		}
 		g_fSpawnDistance = g_fSpawnDistanceMin;
 		/*
 		//优化性能，每波刷新前清除aSpawnNavList队列中的值，但是如果刷特时间很短，这个优化估计起的作用不大
@@ -855,6 +860,7 @@ public void SpawnInfectedSettings()
 		*/
 
 		g_iSpawnMaxCount += g_iSiLimit;
+		g_bShouldCheck = true;
 		g_iWaveTime++;
 		Debug_Print("开始第%d波刷特", g_iWaveTime);
 			
@@ -872,20 +878,21 @@ public void SpawnInfectedSettings()
 public Action CheckShouldSpawnOrNot(Handle timer)
 {
 	g_iLastSpawnTime ++;
+	if(!g_bIsLate) return Plugin_Stop;
 	if(!g_bShouldCheck) return Plugin_Continue;
 	if(!g_bAutoSpawnTimeControl)
 	{
 		g_bShouldCheck = false;
-		Debug_Print("固定增时系统开始新一波刷特");
-		CreateTimer(g_fSiInterval * 1.5, SpawnNewInfected, _, TIMER_FLAG_NO_MAPCHANGE);
+		Debug_Print("固定增时系统开始新一波刷特, 总用时：%.1f秒", g_iLastSpawnTime + g_fSiInterval);
+		g_hSpawnProcess = CreateTimer(g_fSiInterval * 1.5, SpawnNewInfected, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
 	{
-		if((IsAllKillersDown() && g_iSpawnMaxCount == 0) || (g_iTotalSINum <= (RoundToFloor(g_iSiLimit / 4.0) + 1) && g_iSpawnMaxCount == 0) || (g_iLastSpawnTime >= g_fSiInterval * 1.5))
+		if((IsAllKillersDown() && g_iSpawnMaxCount == 0) || (g_iTotalSINum <= (RoundToFloor(g_iSiLimit / 4.0) + 1) && g_iSpawnMaxCount == 0) || (g_iLastSpawnTime >= g_fSiInterval * 0.5))
 		{
 			g_bShouldCheck = false;
-			Debug_Print("自动增时系统开始新一波刷特");
-			CreateTimer(g_fSiInterval, SpawnNewInfected, _, TIMER_FLAG_NO_MAPCHANGE);
+			Debug_Print("自动增时系统开始新一波刷特, 总用时：%.1f秒", g_iLastSpawnTime + g_fSiInterval);
+			g_hSpawnProcess = CreateTimer(g_fSiInterval, SpawnNewInfected, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	return Plugin_Continue;
