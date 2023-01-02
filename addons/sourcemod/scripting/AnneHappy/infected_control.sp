@@ -379,6 +379,7 @@ public void InitStatus(){
 	if (g_hSpawnProcess != INVALID_HANDLE)
 	{
 		KillTimer(g_hSpawnProcess);
+		Debug_Print("刷特进程终止");
 		g_hSpawnProcess = INVALID_HANDLE;
 	}
 	
@@ -879,20 +880,36 @@ public Action CheckShouldSpawnOrNot(Handle timer)
 {
 	g_iLastSpawnTime ++;
 	if(!g_bIsLate) return Plugin_Stop;
-	if(!g_bShouldCheck) return Plugin_Continue;
+	if(!g_bShouldCheck && g_hSpawnProcess != INVALID_HANDLE) return Plugin_Continue;
 	if(!g_bAutoSpawnTimeControl)
 	{
 		g_bShouldCheck = false;
-		Debug_Print("固定增时系统开始新一波刷特, 总用时：%.1f秒", g_iLastSpawnTime + g_fSiInterval);
-		g_hSpawnProcess = CreateTimer(g_fSiInterval * 1.5, SpawnNewInfected, _, TIMER_REPEAT);
+		if(g_iSpawnMaxCount == g_iSiLimit)
+		{
+			Debug_Print("固定增时系统因为等待刷特数量达到上限，暂停刷特, 总用时：%.1f秒", g_iLastSpawnTime + g_fSiInterval);
+			g_iLastSpawnTime = 0;
+		}
+		else
+		{
+			Debug_Print("固定增时系统开始新一波刷特, 总用时：%.1f秒", g_iLastSpawnTime + g_fSiInterval);
+			g_hSpawnProcess = CreateTimer(g_fSiInterval * 1.5, SpawnNewInfected, _, TIMER_REPEAT);
+		}
 	}
 	else
 	{
 		if((IsAllKillersDown() && g_iSpawnMaxCount == 0) || (g_iTotalSINum <= (RoundToFloor(g_iSiLimit / 4.0) + 1) && g_iSpawnMaxCount == 0) || (g_iLastSpawnTime >= g_fSiInterval * 0.5))
 		{
 			g_bShouldCheck = false;
-			Debug_Print("自动增时系统开始新一波刷特, 总用时：%.1f秒", g_iLastSpawnTime + g_fSiInterval);
-			g_hSpawnProcess = CreateTimer(g_fSiInterval, SpawnNewInfected, _, TIMER_REPEAT);
+			if(g_iSpawnMaxCount == g_iSiLimit)
+			{
+				Debug_Print("自动增时系统因为等待刷特数量达到上限，暂停刷特, 总用时：%.1f秒", g_iLastSpawnTime + g_fSiInterval);
+				g_iLastSpawnTime = 0;
+			}
+			else
+			{
+				Debug_Print("自动增时系统开始新一波刷特, 总用时：%.1f秒", g_iLastSpawnTime + g_fSiInterval);
+				g_hSpawnProcess = CreateTimer(g_fSiInterval, SpawnNewInfected, _, TIMER_REPEAT);
+			}
 		}
 	}
 	return Plugin_Continue;
