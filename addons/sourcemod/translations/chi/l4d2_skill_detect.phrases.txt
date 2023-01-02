@@ -135,12 +135,12 @@
 	"SelfClearedTongue"
 	{
         "#format"   "{1:N},{2:N},{3:s}" // 1:attacker 2:victim 3:(withShove) ? Buffer : ""
-		"chi"		"{olive}{1}{default} 从 {olive}{2}{default}的舌头下 {blue}用推{default} {blue}自救{default} "
+		"chi"		"{olive}{1}{default} 从 {olive}{2}{default}的舌头下 {blue}{3}{default} {blue}自救{default} "
 	}
 	"SelfClearedTongueBot"
 	{
         "#format"   "{1:N},{2:s}" // 1:attacker 2:(withShove) ? Buffer : ""
-		"chi"		"{olive}{1}{default} 从 {olive}smoker{default}的舌头下 {blue}用推{default} {blue}自救{default} "
+		"chi"		"{olive}{1}{default} 从 {olive}smoker{default}的舌头下 {blue}{2}{default} {blue}自救{default} "
 	}
 	"Shoving"
 	{
@@ -181,12 +181,12 @@
 	"DeathCharged"
 	{
         "#format"   "{1:N},{2:N},{3:s},{4:i}" // 1:attacker 2:victim 3:(bCarried) ? "" : Buffer 4:RoundFloat(height)
-		"chi"		"{olive}{1}{default} {red}冲锋{default} 造成 {olive}{2} 死亡{default} {3}({red}高度{default}: {red}{4}{default})"
+		"chi"		"{olive}{1}{default} {red}冲锋{default} 造成 {olive}{2} 死亡{default} ({3})({red}高度{default}: {red}{4}{default})"
 	}
 	"DeathChargedBot"
 	{
         "#format"   "{1:N},{2:s},{3:i}" // 1:victim 2:(bCarried) ? "" : Buffer 3:RoundFloat(height)
-		"chi"		"{olive}Charger{default} {red}冲锋{default} 造成 {olive}{1}{default} 死亡{2}({red}高度{default}: {red}{3}{default})"
+		"chi"		"{olive}Charger{default} {red}冲锋{default} 造成 {olive}{1}{default} 死亡({2})({red}高度{default}: {red}{3}{default})"
 	}
 	"Bowling"
 	{

@@ -33,7 +33,7 @@ public Plugin myinfo =
 	name 			= "Ai_Jockey 2.0 版本",
 	author 			= "Breezy，High Cookie，Standalone，Newteee，cravenge，Harry，Sorallll，PaimonQwQ，夜羽真白",
 	description 	= "觉得Ai猴子太弱了？ Try this！",
-	version 		= "2022/12/16",
+	version 		= "2023.01.02",
 	url 			= "https://steamcommunity.com/id/saku_ra/"
 }
 
@@ -128,7 +128,7 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 				return Plugin_Changed;
 			}
 			// 如果目标正在看着 Jockey 而且正在两次推之间，直接骑乘
-			if (GetGameTime() - g_fPlayerShovedTime[iTarget] < SHOVE_INTERVAL)
+			if (GetGameTime() - g_fPlayerShovedTime[iTarget] < SHOVE_INTERVAL && !L4D_IsPlayerStaggering(jockey))
 			{
 				#if DEBUG_ALL
 					PrintToConsoleAll("[Ai-Jockey]：目标：%N 正在推的 cd 内，直接进行攻击", iTarget);
@@ -181,15 +181,17 @@ public Action OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3
 					&& actionPercent <= g_iActionArray[ACTION_JUMP_HIGH])
 				{
 					// 高跳
-					float subtractVec[3] = {0.0};
-					angles[0] = getRandomFloatInRange(20.0, 35.0) * -1.0;
-					NormalizeVector(vel, subtractVec);
-					ScaleVector(subtractVec, g_hBhopSpeed.FloatValue * 3.0);
-					TeleportEntity(jockey, NULL_VECTOR, angles, subtractVec);
+					float AngleVec[3] = {0.0};
+					angles[0] = getRandomFloatInRange(20.0, 40.0) * -1.0;
+					GetAngleVectors(angles, AngleVec, NULL_VECTOR, NULL_VECTOR);
+					NormalizeVector(AngleVec, AngleVec);
+					ScaleVector(AngleVec, fCurrentSpeed);
+					TeleportEntity(jockey, NULL_VECTOR, angles, AngleVec);
 					buttons |= IN_ATTACK;
 					SetState(jockey, 0, IN_ATTACK);
 					#if DEBUG_ALL
 						PrintToConsoleAll("[Ai-Jockey]：目前概率：%d，Jockey 高跳，角度：%.2f", actionPercent, angles[0]);
+						//PrintToConsoleAll("[Ai-Jockey]：Jockey 高跳，速度角度：%.2f %.2f %.2f %.2f", fSpeed[0], fSpeed[1], fSpeed[2], fCurrentSpeed);
 					#endif
 				}
 				return Plugin_Changed;

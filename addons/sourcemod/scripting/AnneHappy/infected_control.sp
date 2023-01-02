@@ -58,7 +58,7 @@ public Plugin myinfo =
 	name 			= "Direct InfectedSpawn",
 	author 			= "Caibiii, 夜羽真白，东",
 	description 	= "特感刷新控制，传送落后特感",
-	version 		= "2022.12.21",
+	version 		= "2023.01.02",
 	url 			= "https://github.com/fantasylidong/CompetitiveWithAnne"
 }
 

@@ -98,7 +98,7 @@
 	"PanelSpectator"
 	{
 		"#format"	"{1:d},{2:s}"	// 1:++textCount, 2:specCount > 1 ? "s" : ""
-		"chi"		"->{1}. 旁观者{2}"
+		"chi"		"->{1}. 旁观者"
 	}
 	"PanelMany"
 	{
