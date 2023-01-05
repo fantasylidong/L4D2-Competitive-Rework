@@ -881,7 +881,7 @@ public Action CheckShouldSpawnOrNot(Handle timer)
 	g_iLastSpawnTime ++;
 	if(!g_bIsLate) return Plugin_Stop;
 	if(!g_bShouldCheck && g_hSpawnProcess != INVALID_HANDLE) return Plugin_Continue;
-	if(IsAnyTankAlive() && g_iLastSpawnTime < RoundToFloor(g_fSiInterval / 2)) return Plugin_Continue;
+	if((IsAnyTankAlive()|| IsAboveHalfSurvivorDownOrDied()) && g_iLastSpawnTime < RoundToFloor(g_fSiInterval / 2)) return Plugin_Continue;
 	if(!g_bAutoSpawnTimeControl)
 	{
 		g_bShouldCheck = false;
@@ -1668,5 +1668,22 @@ stock void Debug_Print(char[] format, any ...)
 		LogToFile(sLogFile, sBuffer);
 	}
 	#endif
+}
+
+stock bool IsAboveHalfSurvivorDownOrDied()
+{
+	int count = 0;
+	for(int i = 1; i <= MaxClients; i ++)
+	{
+		if(IsValidSurvivor(i) && (L4D_IsPlayerIncapacitated(i) || !IsPlayerAlive(i)))
+		{
+			count ++;
+		}
+	}
+	if(count >= RoundToCeil(FindConVar("survivor_limit").IntValue / 2.0))
+	{
+		return true;
+	}
+	return false;
 }
 

@@ -221,6 +221,12 @@ public void OnClientPutInServer(int Client)
 			L4D_LobbyUnreserve();
 			ServerCommand("sm_cvar sv_allow_lobby_connect_only 0");
 		}
+		if(MaxPlayers == getBotLimit())
+		{
+			ConVar gjrj = FindConVar("sb_fix_enabled");
+			if(gjrj != null && gjrj.BoolValue)
+				SetConVarInt(gjrj, false);
+		}
 		printinfo(Client, false);
 	}
 }
@@ -275,4 +281,9 @@ stock bool Incapacitated(int client)
 		if (!IsPlayerAlive(client)) bIsIncapped = true;
 	}
     return bIsIncapped;
+}
+
+stock int getBotLimit()
+{
+	return FindConVar("survivor_limit").IntValue;
 }

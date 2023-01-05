@@ -4454,6 +4454,11 @@ public Action:event_CampaignWin(Handle:event, const String:name[], bool:dontBroa
 		Score = RoundToFloor(Score * (4.0 / getSurvivorNum()));
 	}
 
+	if(IsGaoJiRenJiEnabled())
+	{
+		Score = RoundToFloor(Score * 0.5);
+	}
+
 	if (Mode && Score > 0)
 	{
 		StatsPrintToChatTeam(TEAM_SURVIVORS, "\x03所有幸存者 \x01获得了 \x04%i \x01分 by  \x05%i 幸存者\x01完成了 \x04救援关 \x01!", Score, SurvivorCount);
@@ -9895,6 +9900,11 @@ public CheckSurvivorsWin()
 		Score = RoundToFloor(Score * (4.0 / getSurvivorNum()));
 	}
 
+	if(IsGaoJiRenJiEnabled())
+	{
+		Score = RoundToFloor(Score * 0.5);
+	}
+
 	if (Mode && Score > 0)
 	{
 		StatsPrintToChatTeam(TEAM_SURVIVORS, "\x03所有幸存者 \x01获得 \x04%i \x01分 by \x05%i 死亡到达安全门!", Score, Deaths);
@@ -11847,4 +11857,18 @@ public ReadDbMotdCallback(Handle:owner, Handle:hndl, const String:error[], any:d
 	{
 		SQL_FetchString(hndl, 0, MessageOfTheDay, sizeof(MessageOfTheDay));
 	}
+}
+
+stock bool IsGaoJiRenJiEnabled()
+{
+	ConVar gjrj = FindConVar("sb_fix_enabled");
+	if(gjrj == null)
+	{
+		return false;
+	}
+	else if(gjrj.BoolValue)
+	{
+		return true;
+	}
+	return false;
 }

@@ -425,7 +425,8 @@ public void RewardScore(){
 	if(FindConVar("l4d_ready_cfg_name"))
 	{
 		int renji=0;
-		if(GaoJiRenJi != null && GaoJiRenJi.IntValue == 1){
+		GaoJiRenJi = FindConVar("sb_fix_enabled");
+		if(GaoJiRenJi != null && GaoJiRenJi.BoolValue){
 			PrintToChatAll("\x01[\x04RANK\x01]\x04由于开启了高级人机，不能获得额外过关积分");
 			return;
 		}
@@ -776,7 +777,8 @@ public Action L4D_OnFirstSurvivorLeftSafeArea(int client)
 			}
 		}
 	}
-	if(GaoJiRenJi != null && GaoJiRenJi.IntValue == 1){
+	GaoJiRenJi = FindConVar("sb_fix_enabled");
+	if(GaoJiRenJi != null && GaoJiRenJi.BoolValue){
 		PrintToChatAll("\x01[\x04RANK\x01]\x04由于开启了高级人机，不能获得额外积分，也不会更新地图记录");
 		valid = false;
 	}
@@ -2160,4 +2162,17 @@ stock int getSurvivorNum()
 		}
 	}
 	return count;
+}
+stock bool IsGaoJiRenJiEnabled()
+{
+	ConVar gjrj = FindConVar("sb_fix_enabled");
+	if(gjrj == null)
+	{
+		return false;
+	}
+	else if(gjrj.BoolValue)
+	{
+		return true;
+	}
+	return false;
 }
