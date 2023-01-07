@@ -124,8 +124,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	if (IsBoomer(client))
 	{
 		static float self_pos[3], self_eye_pos[3], targetPos[3], target_eye_pos[3], vec_speed[3], aim_angles[3], vel_buffer[3], cur_speed, dist, height;
-		static int target, closet_survivor_dist, ability, isAbilityUsing, i;
+		static int flags, target, closet_survivor_dist, ability, isAbilityUsing, i;
 		static bool has_sight;
+		flags = GetEntityFlags(client);
 		target = GetClosetSurvivor(client);
 		closet_survivor_dist = GetClosetSurvivorDistance(client);
 		ability = GetEntPropEnt(client, Prop_Send, "m_customAbility");
@@ -140,7 +141,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		if (has_sight && IsValidSurvivor(target) && !in_bile_interval[client] && targetList[client].Length < 1)
 		{
 			dist = GetVectorDistance(self_pos, targetPos), height = self_pos[2] - targetPos[2];
-			if (dist <= g_hVomitRange.FloatValue + 100.0)
+			if (dist <= g_hVomitRange.FloatValue)
 			{
 				ComputeAimAngles(client, target, aim_angles, AimEye);
 				if (g_hUpVision.BoolValue)
@@ -191,7 +192,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 		}
 		// 靠近生还者，立即喷吐
-		if (IsGrounded(client) && IsValidSurvivor(target) && has_sight && closet_survivor_dist <= RoundToNearest(0.8 * g_hVomitRange.FloatValue) && !in_bile_interval[client] && can_bile[client] && Player_IsVisible_To(target, client))
+		if ((flags & FL_ONGROUND) && IsValidSurvivor(target) && has_sight && closet_survivor_dist <= RoundToNearest(0.8 * g_hVomitRange.FloatValue) && !in_bile_interval[client] && can_bile[client] && Player_IsVisible_To(target, client))
 		{
 			buttons |= IN_FORWARD;
 			buttons |= IN_ATTACK;
@@ -229,7 +230,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			CreateTimer(g_hVomitInterval.FloatValue, Timer_ResetAbility, client);
 		}
 		// 连跳
-		if (g_hAllowBhop.BoolValue && has_sight && IsGrounded(client) && 0.5 * g_hVomitRange.FloatValue < closet_survivor_dist < 10000.0 && cur_speed > 160.0 && IsValidSurvivor(target))
+		if (g_hAllowBhop.BoolValue && has_sight && (flags & FL_ONGROUND) && 0.5 * g_hVomitRange.FloatValue < closet_survivor_dist < 10000.0 && cur_speed > 160.0 && IsValidSurvivor(target))
 		{
 			vel_buffer = CalculateVel(self_pos, targetPos, g_hBhopSpeed.FloatValue);
 			buttons |= IN_JUMP;
@@ -242,13 +243,14 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		// 爬梯时，禁止连跳
 		if (GetEntityMoveType(client) & MOVETYPE_LADDER)
 		{
+			buttons &= ~IN_ATTACK;
+			buttons &= ~IN_ATTACK2;
 			buttons &= ~IN_JUMP;
 			buttons &= ~IN_DUCK;
 		}
 	}
 	return Plugin_Continue;
 }
-
 // 重置胖子能力使用限制
 public Action Timer_ResetAbility(Handle timer, int client)
 {
@@ -320,7 +322,7 @@ public Action L4D_OnVomitedUpon(int victim, int &attacker, bool &boomerExplosion
 			{
 				GetClientEyePosition(i, targetEyePos);
 				dist = GetVectorDistance(eyePos, targetEyePos);
-				if (dist <= g_hVomitRange.FloatValue + 100.0)
+				if (dist <= g_hVomitRange.FloatValue)
 				{
 					Handle trace = TR_TraceRayFilterEx(eyePos, targetEyePos, MASK_VISIBLE, RayType_EndPoint, TR_RayFilter, attacker);
 					if (!TR_DidHit(trace) || TR_GetEntityIndex(trace) == i) { targetList[attacker].Set(targetList[attacker].Push(dist), i, 1); }
@@ -479,16 +481,16 @@ static bool isInAimOffset(int attacker, int target, float offset)
 {
 	if (!IsBoomer(attacker) || !IsPlayerAlive(attacker) || !IsValidSurvivor(target) || !IsPlayerAlive(target)) { return false; }
 	static float selfEyePos[3], targetEyePos[3], resultPos[3], selfEyeVector[3];
-	// 和目标的方向向量
+	// 和目标的方向向量，要在 NormalizeVector 前将向量 xz 方向设置为 0
 	GetClientEyePosition(attacker, selfEyePos);
 	GetClientEyePosition(target, targetEyePos);
+	selfEyePos[2] = targetEyePos[2] = 0.0;
 	MakeVectorFromPoints(selfEyePos, targetEyePos, resultPos);
 	NormalizeVector(resultPos, resultPos);
-	resultPos[2] = 0.0;
 	// 自己眼睛看的方向向量
 	GetClientEyeAngles(attacker, selfEyePos);
+	selfEyePos[0] = selfEyePos[2] = 0.0;
 	GetAngleVectors(selfEyePos, selfEyeVector, NULL_VECTOR, NULL_VECTOR);
 	NormalizeVector(selfEyeVector, selfEyeVector);
-	selfEyeVector[2] = 0.0;
-	return RadToDeg(ArcCosine(GetVectorDotProduct(resultPos, selfEyeVector))) <= offset;
+	return RadToDeg(ArcCosine(GetVectorDotProduct(selfEyeVector, resultPos))) <= offset;
 }
