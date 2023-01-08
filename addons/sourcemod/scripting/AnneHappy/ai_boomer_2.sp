@@ -13,6 +13,7 @@
 #define FALL_DETECT_HEIGHT 120.0
 #define COMMAND_INTERVAL 1.0
 #define PLAYER_HEIGHT 72.0
+#define DEBUG_ALL 1
 
 enum AimType
 {
@@ -58,7 +59,7 @@ public void OnPluginStart()
 {
 	// CreateConVars
 	g_hAllowBhop = CreateConVar("ai_BoomerBhop", "1", "是否开启 Boomer 连跳", CVAR_FLAG, true, 0.0, true, 1.0);
-	g_hBhopSpeed = CreateConVar("ai_BoomerBhopSpeed", "150.0", "Boomer 连跳速度", CVAR_FLAG, true, 0.0);
+	g_hBhopSpeed = CreateConVar("ai_BoomerBhopSpeed", "90.0", "Boomer 连跳速度", CVAR_FLAG, true, 0.0);
 	g_hUpVision = CreateConVar("ai_BoomerUpVision", "1", "Boomer 喷吐时是否上抬视角", CVAR_FLAG, true, 0.0, true, 1.0);
 	g_hTurnVision = CreateConVar("ai_BoomerTurnVision", "1", "Boomer 喷吐时是否旋转视角", CVAR_FLAG, true, 0.0, true, 1.0);
 	g_hForceBile = CreateConVar("ai_BoomerForceBile", "0", "是否开启生还者到 Boomer 喷吐范围内强制被喷", CVAR_FLAG, true, 0.0, true, 1.0);
@@ -124,9 +125,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	if (IsBoomer(client))
 	{
 		static float self_pos[3], self_eye_pos[3], targetPos[3], target_eye_pos[3], vec_speed[3], aim_angles[3], vel_buffer[3], cur_speed, dist, height;
-		static int flags, target, closet_survivor_dist, ability, isAbilityUsing, i;
+		static int target, closet_survivor_dist, ability, isAbilityUsing, i;
 		static bool has_sight;
-		flags = GetEntityFlags(client);
 		target = GetClosetSurvivor(client);
 		closet_survivor_dist = GetClosetSurvivorDistance(client);
 		ability = GetEntPropEnt(client, Prop_Send, "m_customAbility");
@@ -153,6 +153,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				// 第一个目标是否强行被喷
 				if (g_hAllowInDegreeForceBile.BoolValue && isInAimOffset(client, target, g_hAllowInDegreeForceBile.FloatValue) && !isInBileState[target] && isAbilityUsing)
 				{
+					#if DEBUG_ALL
+						PrintToConsoleAll("[Ai-Boomer]：%N 的第一个目标是：%N，强制被喷", client, target);
+					#endif
 					L4D_CTerrorPlayer_OnVomitedUpon(target, client);
 					isInBileState[target] = true;
 				}
@@ -176,6 +179,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				// 其他在范围内的目标是否强行被喷
 				if (g_hAllowInDegreeForceBile.BoolValue && isInAimOffset(client, turnTarget, g_hAllowInDegreeForceBile.FloatValue) && !isInBileState[turnTarget] && isAbilityUsing)
 				{
+					#if DEBUG_ALL
+						PrintToConsoleAll("[Ai-Boomer]：%N 当前目标是：%N，强制被喷", client, turnTarget);
+					#endif
 					L4D_CTerrorPlayer_OnVomitedUpon(turnTarget, client);
 					isInBileState[turnTarget] = true;
 				}
@@ -192,7 +198,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 		}
 		// 靠近生还者，立即喷吐
-		if ((flags & FL_ONGROUND) && IsValidSurvivor(target) && has_sight && closet_survivor_dist <= RoundToNearest(0.8 * g_hVomitRange.FloatValue) && !in_bile_interval[client] && can_bile[client] && Player_IsVisible_To(target, client))
+		if (IsGrounded(client) && IsValidSurvivor(target) && has_sight && closet_survivor_dist <= RoundToNearest(0.8 * g_hVomitRange.FloatValue) && !in_bile_interval[client] && can_bile[client] && Player_IsVisible_To(target, client))
 		{
 			buttons |= IN_FORWARD;
 			buttons |= IN_ATTACK;
@@ -214,7 +220,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				if (!IsClientInGame(i) || GetClientTeam(i) != TEAM_SURVIVOR || !IsPlayerAlive(i)) { continue; }
 				GetClientEyePosition(i, target_eye_pos);
 				Handle trace = TR_TraceRayFilterEx(self_eye_pos, target_eye_pos, MASK_VISIBLE, RayType_EndPoint, TR_RayFilter, client);
-				if (TR_DidHit(trace) || TR_GetEntityIndex(trace) != i)
+				if (TR_DidHit(trace) && TR_GetEntityIndex(trace) != i)
 				{
 					delete trace;
 					continue;
@@ -225,12 +231,15 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					continue;
 				}
 				delete trace;
+				#if DEBUG_ALL
+					PrintToConsoleAll("[Ai-Boomer]：开启强制被喷：目标：%N，强制被喷", i);
+				#endif
 				L4D_CTerrorPlayer_OnVomitedUpon(i, client);
 			}
 			CreateTimer(g_hVomitInterval.FloatValue, Timer_ResetAbility, client);
 		}
 		// 连跳
-		if (g_hAllowBhop.BoolValue && has_sight && (flags & FL_ONGROUND) && 0.5 * g_hVomitRange.FloatValue < closet_survivor_dist < 10000.0 && cur_speed > 160.0 && IsValidSurvivor(target))
+		if (g_hAllowBhop.BoolValue && has_sight && IsGrounded(client) && 0.5 * g_hVomitRange.FloatValue < closet_survivor_dist < 10000.0 && cur_speed > 160.0 && IsValidSurvivor(target))
 		{
 			vel_buffer = CalculateVel(self_pos, targetPos, g_hBhopSpeed.FloatValue);
 			buttons |= IN_JUMP;

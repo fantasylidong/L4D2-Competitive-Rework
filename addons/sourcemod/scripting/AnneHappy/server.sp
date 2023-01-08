@@ -72,7 +72,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_setbot", SetBot);
 	RegAdminCmd("sm_kicktank", KickMoreTankThanOne, ADMFLAG_KICK, "有多只tank得情况，随机踢至只有一只");
 	SetConVarBounds(FindConVar("survivor_limit"), ConVarBound_Upper, true, 8.0);
-	RegAdminCmd("sm_addbot", ADMAddBot, ADMFLAG_ROOT, "Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over)");
+	RegAdminCmd("sm_addbot", ADMAddBot, ADMFLAG_SLAY, "Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over)");
 	hSurvivorsManagerEnable = CreateConVar("l4d_multislots_survivors_manager_enable", "0", "Enable or Disable survivors manage",CVAR_FLAGS, true, 0.0, true, 1.0);
 	hMaxSurvivors	= CreateConVar("l4d_multislots_max_survivors", "4", "Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)", CVAR_FLAGS, true, 4.0, true, 8.0);
 	hCvarAutoKickTank = CreateConVar("l4d_multislots_autokicktank", "0", "Auto kick tank when tank number above one", CVAR_FLAGS, true, 0.0, true, 1.0);
