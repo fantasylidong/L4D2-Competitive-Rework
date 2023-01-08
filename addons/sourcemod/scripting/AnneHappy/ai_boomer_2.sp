@@ -13,7 +13,7 @@
 #define FALL_DETECT_HEIGHT 120.0
 #define COMMAND_INTERVAL 1.0
 #define PLAYER_HEIGHT 72.0
-#define DEBUG_ALL 1
+#define DEBUG_ALL 0
 
 enum AimType
 {
@@ -320,26 +320,41 @@ public Action L4D2_OnChooseVictim(int specialInfected, int &curTarget)
 // 当生还被胖子喷中时，开始计算范围内的玩家
 public Action L4D_OnVomitedUpon(int victim, int &attacker, bool &boomerExplosion)
 {
+	if (!IsBoomer(attacker) && targetList[attacker].Length > 1) { return Plugin_Continue; }
 	// 当前 Boomer 目标集合中没有目标，开始获取目标
-	if (IsBoomer(attacker) && targetList[attacker].Length < 1)
+	static int i;
+	static float eyePos[3], targetEyePos[3], dist, angle;
+	GetClientEyePosition(attacker, eyePos);
+	for (i = 1; i <= MaxClients; i++)
 	{
-		float eyePos[3] = {0.0}, targetEyePos[3] = {0.0}, dist = 0.0;
-		GetClientEyePosition(attacker, eyePos);
-		for (int i = 1; i <= MaxClients; i++)
+		if (!IsClientInGame(i) || GetClientTeam(i) != TEAM_SURVIVOR || !IsPlayerAlive(i) || i == victim) { continue; }
+		GetClientEyePosition(i, targetEyePos);
+		dist = GetVectorDistance(eyePos, targetEyePos);
+		if (dist > g_hVomitRange.FloatValue) { continue; }
+		Handle trace = TR_TraceRayFilterEx(eyePos, targetEyePos, MASK_VISIBLE, RayType_EndPoint, TR_RayFilter, attacker);
+		// 按照与当前胖子眼睛视线的角度大小来定位玩家
+		if (!TR_DidHit(trace) || TR_GetEntityIndex(trace) == i)
 		{
-			if (i != victim && IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i))
-			{
-				GetClientEyePosition(i, targetEyePos);
-				dist = GetVectorDistance(eyePos, targetEyePos);
-				if (dist <= g_hVomitRange.FloatValue)
-				{
-					Handle trace = TR_TraceRayFilterEx(eyePos, targetEyePos, MASK_VISIBLE, RayType_EndPoint, TR_RayFilter, attacker);
-					if (!TR_DidHit(trace) || TR_GetEntityIndex(trace) == i) { targetList[attacker].Set(targetList[attacker].Push(dist), i, 1); }
-					delete trace;
-				}
-			}
+			angle = getSelfTargetAngle(attacker, i);
+			#if DEBUG_ALL
+				PrintToConsoleAll("[Ai-Boomer]：%N 的视角与目标 %N 的角度是：%.2f 度", attacker, i, angle);
+			#endif
+			targetList[attacker].Set(targetList[attacker].Push(angle), i, 1);
 		}
-		if (targetList[attacker].Length > 1) { targetList[attacker].Sort(Sort_Ascending, Sort_Float); }
+		delete trace;
+	}
+	if (targetList[attacker].Length > 1)
+	{
+		targetList[attacker].Sort(Sort_Ascending, Sort_Float);
+		#if DEBUG_ALL
+			PrintToConsoleAll("[Ai-Boomer]：开始按顺序输出 %N 的目标", attacker);
+		#endif
+		for (i = 0; i < targetList[attacker].Length; i++)
+		{
+			#if DEBUG_ALL
+				PrintToConsoleAll("[Ai-Boomer]：%N 的下一个目标是：%N，角度是：%.2f 度", attacker, targetList[attacker].Get(i, 1), targetList[attacker].Get(i, 0));
+			#endif
+		}
 	}
 	return Plugin_Continue;
 }
@@ -489,6 +504,14 @@ void ComputeAimAngles(int client, int target, float angles[3], AimType type = Ai
 static bool isInAimOffset(int attacker, int target, float offset)
 {
 	if (!IsBoomer(attacker) || !IsPlayerAlive(attacker) || !IsValidSurvivor(target) || !IsPlayerAlive(target)) { return false; }
+	static float angle;
+	angle = getSelfTargetAngle(attacker, target);
+	return angle != -1.0 && angle <= offset;
+}
+
+static float getSelfTargetAngle(int attacker, int target)
+{
+	if (!IsBoomer(attacker) || !IsPlayerAlive(attacker) || !IsValidSurvivor(target) || !IsPlayerAlive(target)) { return -1.0; }
 	static float selfEyePos[3], targetEyePos[3], resultPos[3], selfEyeVector[3];
 	// 和目标的方向向量，要在 NormalizeVector 前将向量 xz 方向设置为 0
 	GetClientEyePosition(attacker, selfEyePos);
@@ -501,5 +524,5 @@ static bool isInAimOffset(int attacker, int target, float offset)
 	selfEyePos[0] = selfEyePos[2] = 0.0;
 	GetAngleVectors(selfEyePos, selfEyeVector, NULL_VECTOR, NULL_VECTOR);
 	NormalizeVector(selfEyeVector, selfEyeVector);
-	return RadToDeg(ArcCosine(GetVectorDotProduct(selfEyeVector, resultPos))) <= offset;
+	return RadToDeg(ArcCosine(GetVectorDotProduct(selfEyeVector, resultPos)));
 }
