@@ -1635,7 +1635,7 @@ int Calculate_Flow(Address pNavArea)
 // @retVal：原 value 值，使用 return Plugin_Handled 覆盖
 public Action L4D_OnGetScriptValueInt(const char[] key, int &retVal)
 {
-	if ((strcmp(key, "cm_ShouldHurry", false) == 0) || (strcmp(key, "cm_AggressiveSpecials", false) == 0) && retVal != 1)
+	if ((strcmp(key, "cm_ShouldHurry", false) == 0) || (strcmp(key, "cm_AggressiveSpecials", false) == 0) || (strcmp(key, "ActiveChallenge", false) == 0) && retVal != 1)
 	{
 		retVal == 1;
 		return Plugin_Handled;
