@@ -30,7 +30,6 @@ void Patch (GameData data)
 {
 	static const char name[][] =
 	{
-		"vomit",
 		"charger",
 		"zoom"
 	};

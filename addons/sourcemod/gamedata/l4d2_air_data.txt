@@ -3,26 +3,7 @@
 	"left4dead2"
 	{
 		"MemPatches"
-		{
-			"vomit"
-			{
-				"signature" "CVomit::IsAbilityReadyToFire"
-				
-				"linux"
-				{
-					"offset"	"7Dh"
-					"verify"	"\x74\xB9"
-					"patch"		"\x90\x90"
-				}
-				
-				"windows"
-				{
-					"offset"	"6Ah"
-					"verify"	"\x74\xC9"
-					"patch"		"\x90\x90"
-				}
-			}
-			
+		{			
 			"charger"
 			{
 				"signature" "CCharge::ActivateAbility"
@@ -63,16 +44,7 @@
 		}
 		
 		"Signatures" 
-		{
-			"CVomit::IsAbilityReadyToFire"
-			{
-				/* 56 57 8B ? 8B 87 ? ? ? ? 83 ? ? 74 ? 8B 15 ? ? ? ? 8B ? 81 E1 ? ? ? ? 03 ? 8D ? ? ? 85 ? 74 ? C1 ? ? 39 ? ? 75 ? 8B ? 85 ? 75 ? 5F 32 ? 5E C3 8B ? 8B 90 ? ? ? ? 8B ? FF ? 84 ? 75 ? F7 */
-				/* Thanks Crasher */
-				
-				"windows"    "\x56\x57\x8B\x2A\x8B\x87\x2A\x2A\x2A\x2A\x83\x2A\x2A\x74\x2A\x8B\x15\x2A\x2A\x2A\x2A\x8B\x2A\x81\xE1\x2A\x2A\x2A\x2A\x03\x2A\x8D\x2A\x2A\x2A\x85\x2A\x74\x2A\xC1\x2A\x2A\x39\x2A\x2A\x75\x2A\x8B\x2A\x85\x2A\x75\x2A\x5F\x32\x2A\x5E\xC3\x8B\x2A\x8B\x90\x2A\x2A\x2A\x2A\x8B\x2A\xFF\x2A\x84\x2A\x75\x2A\xF7"
-				"linux"	"@_ZNK6CVomit20IsAbilityReadyToFireEv"
-			}
-			
+		{			
 			"CCharge::ActivateAbility"
 			{
 				/* 57 8B ? 8B ? 8B 90 ? ? ? ? FF ? 84 ? 0F 84 ? ? ? ? 8B 87 ? ? ? ? 53 */
