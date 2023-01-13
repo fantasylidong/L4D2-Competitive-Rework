@@ -421,18 +421,18 @@ void FormatDuration(char[] duration, int length, float timestamp)
 	int new_timestamp = RoundToNearest(timestamp);
 	if (new_timestamp < 60)
 	{
-		FormatEx(duration, length, "{G}%d秒", new_timestamp);
+		FormatEx(duration, length, "{green}%d秒", new_timestamp);
 	}
 	else if (new_timestamp < 3600)
 	{
 		int minute = new_timestamp / 60;
-		FormatEx(duration, length, "{G}%d分钟%d秒", minute, new_timestamp - (minute * 60));
+		FormatEx(duration, length, "{green}%d分钟%d秒", minute, new_timestamp - (minute * 60));
 	}
 	else
 	{
 		int hour = new_timestamp / 3600;
 		int minute = new_timestamp % 3600 / 60;
 		int second = new_timestamp % 60;
-		FormatEx(duration, length, "{G}%d小时%d分钟%d秒", hour, minute, second);
+		FormatEx(duration, length, "{green}%d小时%d分钟%d秒", hour, minute, second);
 	}
 }

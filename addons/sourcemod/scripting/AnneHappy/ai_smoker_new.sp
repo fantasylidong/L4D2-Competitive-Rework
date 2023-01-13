@@ -305,7 +305,7 @@ public Action L4D2_OnChooseVictim(int specialInfected, int &curTarget)
 								float self_eye_pos[3] = {0.0}, eye_pos[3] = {0.0};
 								GetClientEyePosition(specialInfected, self_eye_pos);
 								GetClientEyePosition(i, eye_pos);
-								Handle hTrace = TR_TraceRayFilterEx(self_eye_pos, eye_pos, MASK_VISIBLE, RayType_EndPoint, TR_RayFilter, specialInfected);
+								Handle hTrace = TR_TraceRayFilterEx(self_eye_pos, eye_pos, MASK_SOLID, RayType_EndPoint, TR_RayFilter, specialInfected);
 								if (!TR_DidHit(hTrace) && GetVectorDistance(self_eye_pos, eye_pos) < 600.0 && IsSurvivor(newtarget))
 								{
 									curTarget = newtarget;
