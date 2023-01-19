@@ -1005,7 +1005,8 @@ public Action ApplyTags(int client,int args)
 //设置称号指令
 public Action SetCH(int client,int args)
 { 
-	if(g_bl4dstatsSystemAvailable && l4dstats_GetClientScore(client) < 500000)
+	if(!IsVaildClient(client)){return Plugin_Handled;}
+	if((g_bl4dstatsSystemAvailable && l4dstats_GetClientScore(client) < 500000) || (CheckCommandAccess(client, "", ADMFLAG_SLAY)))
 	{
 		ReplyToCommand(client,"你得积分小于50w，不能自定义称号");
 		return Plugin_Handled;
