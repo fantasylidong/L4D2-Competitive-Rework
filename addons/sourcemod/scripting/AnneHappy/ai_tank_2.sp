@@ -646,7 +646,7 @@ public void evt_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	CreateTimer(3.0, initLadder, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-// 开局重置特感状态
+// 开局重置梯子状态
 public Action initLadder(Handle timer)
 {
 	if(ladderList.Length <= 1){
