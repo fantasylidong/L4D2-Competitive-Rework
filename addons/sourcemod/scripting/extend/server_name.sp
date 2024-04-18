@@ -115,7 +115,10 @@ public void UpdateServerName(){
 	GetConVarString(cvarServerNameFormatCase1, FinalHostname, sizeof(FinalHostname));
 	GetConVarString(cvarMpGameMode, sReadyUpCfgName, sizeof(sReadyUpCfgName));	
 	if(StrContains(sReadyUpCfgName, "AnneHappy", false)!=-1){
-		ReplaceString(FinalHostname, sizeof(FinalHostname), "{Confogl}","[普通药役]");
+		if(StrContains(sReadyUpCfgName, "HardCore", false)!=-1)
+			ReplaceString(FinalHostname, sizeof(FinalHostname), "{Confogl}","[硬核药役]");
+		else
+			ReplaceString(FinalHostname, sizeof(FinalHostname), "{Confogl}","[普通药役]");
 		IsAnne = true;
 	}	
 	else if(StrContains(sReadyUpCfgName, "AllCharger", false)!=-1){

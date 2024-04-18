@@ -22,6 +22,10 @@
 		{
 			"name" "牛牛冲刺大逃亡"
 		}
+		"annehappy_hardcore"
+		{
+			"name" "硬核药疫"
+		}
 	}
 	"ZoneMod Configs"
 	{

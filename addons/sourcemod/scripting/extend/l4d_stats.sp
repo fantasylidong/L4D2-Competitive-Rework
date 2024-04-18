@@ -3574,23 +3574,25 @@ public Action:event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
 	}
 }
 
-stock bool IsAnne(){
+stock int IsAnne(){
 	decl String:plugin_name[MAX_LINE_WIDTH];
 	if(cvar_mode == null && FindConVar("l4d_ready_cfg_name"))
 	{
 		cvar_mode = FindConVar("l4d_ready_cfg_name");
 	}
-	if(cvar_mode == null) return false;
+	if(cvar_mode == null) return 0;
 	GetConVarString(cvar_mode, plugin_name, sizeof(plugin_name));
 	if(StrContains(plugin_name, "AnneHappy", false) != -1)
 	{
-		return true;
+		if(StrContains(plugin_name, "HardCore", false) != -1)
+			return 2;
+		else
+			return 1;
 	}else
 	{
-		return false;
+		return 0;
 	}
 }
-
 
 stock bool IsAllCharger(){
 	decl String:plugin_name[MAX_LINE_WIDTH];
@@ -3797,6 +3799,13 @@ public Action:event_TankKilled(Handle:event, const String:name[], bool:dontBroad
 
 	// This was proposed by AlliedModders users el_psycho and PatriotGames (Thanks!)
 	new Score = (BaseScore * ((Players - Deaths) / Players)) / Players;
+
+	// HardCore 奖励增加100%
+	if(IsAnne() == 2)
+	{
+		Score *= 2;
+	}
+	
 
 	decl String:UpdatePoints[32];
 
@@ -4379,6 +4388,14 @@ public Action:event_CampaignWin(Handle:event, const String:name[], bool:dontBroa
 	{
 		Score = RoundToFloor(Score * 0.5);
 	}
+
+	// HardCore 奖励增加50%
+	if(IsAnne() == 2)
+	{
+		Score = RoundToFloor(1.5 * Score);
+	}
+
+	if(!CheckIsOfficalMap())return;
 
 	new maxplayers = MaxClients;
 	for (new i = 1; i <= maxplayers; i++)
@@ -9844,7 +9861,15 @@ public CheckSurvivorsWin()
 	{
 		Score = RoundToFloor(Score * 0.5);
 	}
-	
+
+	// HardCore 奖励增加50%
+	if(IsAnne() == 2)
+	{
+		Score = RoundToFloor(1.5 * Score);
+	}
+
+	if(!CheckIsOfficalMap())return;
+
 	new String:All4Safe[64] = "";
 	if (Deaths == 0)
 		Format(All4Safe, sizeof(All4Safe), ", award_allinsafehouse = award_allinsafehouse + 1");
@@ -11146,7 +11171,7 @@ public bool StopMapTiming()
 	{
 		if (GetConVarInt(cvar_AnnounceMode))
 		{
-			StatsPrintToChatAll("此次结果因修改难度或开启高级人机导致 \x04无效 \x01，不记录这张地图游戏时间!");
+			StatsPrintToChatAll("此次结果因修改难度或开启高级人机或使用管理员功能导致 \x04无效 \x01，不记录这张地图游戏时间!");
 		}
 		MapTimingStartTime = -1.0;
 		MapTimingBlocked = true;
@@ -11163,10 +11188,7 @@ public bool StopMapTiming()
 		return false;
 	}
 	int mode = 0;
-	if(IsAnne())
-	{
-		mode = 1;
-	}else if(IsWitchParty())
+	if(IsWitchParty())
 	{
 		mode = 2;
 	}else if(IsAllCharger())
@@ -11178,6 +11200,12 @@ public bool StopMapTiming()
 	}else if(Is1vht())
 	{
 		mode = 5;
+	}else if(IsAnne() == 1)
+	{
+		mode = 1;
+	}else if(IsAnne() == 2)
+	{
+		mode = 6;
 	}
 	ConVar multiplayer = FindConVar("l4d_multislots_survivors_manager_enable");
 	if(mode > 0 && (multiplayer == null || multiplayer.IntValue == 1 || GetConVarInt(cvar_SurvivorLimit) > 4))
@@ -11292,10 +11320,7 @@ GetThisModeBestTime(int UseBuy=0)
 
 	new GameDifficulty = GetCurrentDifficulty();
 	int mode = 1;
-	if(IsAnne())
-	{
-		mode = 1;
-	}else if(IsWitchParty())
+	if(IsWitchParty())
 	{
 		mode = 2;
 	}else if(IsAllCharger())
@@ -11307,6 +11332,12 @@ GetThisModeBestTime(int UseBuy=0)
 	}else if(Is1vht())
 	{
 		mode = 5;
+	}else if(IsAnne() == 1)
+	{
+		mode = 1;
+	}else if(IsAnne() == 2)
+	{
+		mode = 6;
 	}
 	Format(query, sizeof(query), "SELECT time FROM %stimedmaps WHERE map = '%s' AND gamemode = %i AND difficulty = %i AND mutation = '%s'  AND sinum = %i AND sitime = %i AND anneversion = '%s' AND mode = %i AND usebuy = %i AND auto = %i AND players = %i ORDER BY time LIMIT 1",\
 	 		DbPrefix, MapName, CurrentGamemodeID, GameDifficulty, CurrentMutation, GetAnneInfectedNumber(), GetAnneSISpawnTime(),\
@@ -11341,10 +11372,7 @@ public GetFastTime(Handle:owner, Handle:hndl, const String:error[], any:dp)
 public UpdateMapTimingStat(Handle:owner, Handle:hndl, const String:error[], any:dp)
 {
 	int mode = 0;
-	if(IsAnne())
-	{
-		mode = 1;
-	}else if(IsWitchParty())
+	if(IsWitchParty())
 	{
 		mode = 2;
 	}else if(IsAllCharger())
@@ -11356,6 +11384,12 @@ public UpdateMapTimingStat(Handle:owner, Handle:hndl, const String:error[], any:
 	}else if(Is1vht())
 	{
 		mode = 5;
+	}else if(IsAnne() == 1)
+	{
+		mode = 1;
+	}else if(IsAnne() == 2)
+	{
+		mode = 6;
 	}
 	ResetPack(dp);
 
@@ -11961,4 +11995,12 @@ stock bool IsThisRoundValid()
 		return tank_bhop.BoolValue;
 	}
 	return true;
+}
+
+stock bool CheckIsOfficalMap(){
+	char mapname[256];
+	GetCurrentMap(mapname,sizeof(mapname));
+	if(( (mapname[0]=='c') && (mapname[2]=='m') &&(mapname[4]=='_'))||((mapname[0]=='c')&&(mapname[3]=='m')&&(mapname[5]=='_')))
+		return true;
+	return false;
 }

@@ -44,6 +44,10 @@
 		{
 			"message" "牛牛冲刺大逃亡"
 		}
+		"sm_fm annehappy_hardcore"
+		{
+			"message" "硬核药役模式"
+		}
 	}
 	"杂项"
 	{

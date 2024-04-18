@@ -10,7 +10,7 @@
 #include <si_target_limit>
 #include <pause>
 #include <ai_smoker_new>
-#include <si_pool>
+//#include <si_pool>
 
 #define CVAR_FLAG             FCVAR_NOTIFY
 #define TEAM_SURVIVOR         2
@@ -60,7 +60,7 @@ public Plugin myinfo =
     name = "Direct InfectedSpawn",
     author = "Caibiii, 夜羽真白，东, Paimon-Kawaii",
     description = "特感刷新控制，传送落后特感",
-    version = "2024.04.05",
+    version = "2024.04.16",
     url = "https://github.com/fantasylidong/CompetitiveWithAnne",
 
 
@@ -139,8 +139,8 @@ ArrayList
     // aSpawnNavList,						//储存特感生成的navid，用来限制特感不能生成在同一块Navid上
     aSpawnQueue;    //刷特队列
 
-SIPool
-    g_hSIPool;
+//SIPool
+//    g_hSIPool;
 
 public APLRes AskPluginLoad2(Handle plugin, bool late, char[] error, int err_max)
 {
@@ -166,7 +166,7 @@ public void OnAllPluginsLoaded()
 {
     g_bTargetSystemAvailable = LibraryExists("si_target_limit");
     g_bSmokerAvailable = LibraryExists("ai_smoker_new");
-    g_bSIPoolAvailable = LibraryExists("si_pool");
+//    g_bSIPoolAvailable = LibraryExists("si_pool");
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -175,8 +175,8 @@ public void OnLibraryAdded(const char[] name)
         g_bTargetSystemAvailable = true;
     else if (StrEqual(name, "ai_smoker_new"))
         g_bSmokerAvailable = true;
-    else if (StrEqual(name, "si_pool"))
-        g_bSIPoolAvailable = true;
+//    else if (StrEqual(name, "si_pool"))
+//       g_bSIPoolAvailable = true;
 }
 
 public void OnLibraryRemoved(const char[] name)
@@ -185,8 +185,8 @@ public void OnLibraryRemoved(const char[] name)
         g_bTargetSystemAvailable = false;
     else if (StrEqual(name, "ai_smoker_new"))
         g_bSmokerAvailable = false;
-    else if (StrEqual(name, "si_pool"))
-        g_bSIPoolAvailable = false;
+//    else if (StrEqual(name, "si_pool"))
+//        g_bSIPoolAvailable = false;
 }
 
 public void OnPluginStart()
@@ -254,11 +254,12 @@ public void OnPluginStart()
     RegAdminCmd("sm_startspawn", Cmd_StartSpawn, ADMFLAG_ROOT, "管理员重置刷特时钟");
     RegAdminCmd("sm_stopspawn", Cmd_StopSpawn, ADMFLAG_ROOT, "管理员重置刷特时钟");
 }
-
+/*
 public void OnMapStart()
 {
     if (g_bSIPoolAvailable && !g_hSIPool) g_hSIPool = SIPool.Instance();
 }
+*/
 
 public void OnPluginEnd()
 {
@@ -480,10 +481,10 @@ Action Timer_KickBot(Handle timer, int client)
     if (IsClientInGame(client) && !IsClientInKickQueue(client) && IsFakeClient(client))
     {
         Debug_Print("踢出特感%N", client);
-        if (g_bSIPoolAvailable)
-            g_hSIPool.ReturnSIBot(client);
-        else KickClient(client, "You are worthless and was kicked by console");
-
+//      if (g_bSIPoolAvailable)
+            //g_hSIPool.ReturnSIBot(client);
+//      else 
+        KickClient(client, "You are worthless and was kicked by console");
         return Plugin_Stop;
     }
     return Plugin_Continue;
@@ -722,11 +723,12 @@ stock bool SpawnInfected(float fSpawnPos[3], float SpawnDistance, int iZombieCla
                     return false;
 
                 int entityindex;
-                if (g_bSIPoolAvailable)
-                    entityindex = g_hSIPool.RequestSIBot(iZombieClass, fSpawnPos);
-                else entityindex = L4D2_SpawnSpecial(iZombieClass, fSpawnPos, view_as<float>({ 0.0, 0.0, 0.0 }));
+                //if (g_bSIPoolAvailable)
+                    //entityindex = g_hSIPool.RequestSIBot(iZombieClass, fSpawnPos);
+                //else 
+                entityindex = L4D2_SpawnSpecial(iZombieClass, fSpawnPos, view_as<float>({ 0.0, 0.0, 0.0 }));
 
-                Debug_Print("请求%d特感，生成：%d", iZombieClass, entityindex);
+                //Debug_Print("请求%d特感，生成：%d", iZombieClass, entityindex);
                 if (IsValidEntity(entityindex) && IsValidEdict(entityindex))
                 {
                     // aSpawnNavList.Push(nav1);
@@ -792,8 +794,7 @@ bool HasReachedLimit(int zombieclass)
     int count = 0;
     static char convar[16];
     for (int infected = 1; infected <= MaxClients; infected++)
-        if (IsClientConnected(infected) && IsClientInGame(infected) && !IsPlayerAlive(infected)
-            && GetEntProp(infected, Prop_Send, "m_zombieClass") == zombieclass)
+        if (IsClientConnected(infected) && IsClientInGame(infected) && IsPlayerAlive(infected) && GetEntProp(infected, Prop_Send, "m_zombieClass") == zombieclass)
             count += 1;
 
     if ((g_hAllChargerMode.BoolValue || g_hAllHunterMode.BoolValue) && count == g_iSiLimit)
@@ -907,10 +908,17 @@ Action CheckShouldSpawnOrNot(Handle timer)
     if (!g_bShouldCheck && g_hSpawnProcess != INVALID_HANDLE) return Plugin_Continue;
     if (FindConVar("survivor_limit").IntValue >= 2 && IsAnyTankOrAboveHalfSurvivorDownOrDied() && g_iLastSpawnTime < RoundToFloor(g_fSiInterval / 2)) return Plugin_Continue;
     //防止0s情况下spitter无法快速踢出导致的特感越刷越少问题
+    /*
     if (g_iEnableSIoption & ENABLE_SPITTER && g_iLastSpawnTime < 4 && !g_bSIPoolAvailable)    // 使用 SIPool 后无此问题
     {
         Debug_Print("因为可以刷spitter，所以最低4秒起刷，不然容易造成特感数量统计错误，特感生成不出来");
         return Plugin_Continue;
+    }
+    */
+    if(g_iEnableSIoption & ENABLE_SPITTER && g_iLastSpawnTime < 4)  
+    {
+    	//Debug_Print("因为可以刷spitter，所以最低4秒起刷，不然容易造成特感数量统计错误，特感生成不出来");
+	    return Plugin_Continue;
     }
     if (!g_bAutoSpawnTimeControl)
     {
@@ -1017,7 +1025,7 @@ bool IsOnValidMesh(float fReferencePos[3])
     // }
 
     // 我真心建议这样写，可读性不比用if分支差，一个方法太长看着会很乱的
-    return pNavArea != Address_Null && !(L4D_GetNavArea_SpawnAttributes(pNavArea) & CHECKPOINT);
+    return pNavArea != Address_Null && !((L4D_GetNavArea_SpawnAttributes(pNavArea) & CHECKPOINT));
 }
 
 //判断该坐标是否可以看到生还或者距离小于g_fSpawnDistanceMin码，减少一层栈函数，增加实时性,单人模式增加2条射线模仿左右眼
@@ -1042,13 +1050,14 @@ stock bool PlayerVisibleTo(float targetposition[3], bool IsTeleport = false)
                             if (GetVectorDistance(temp, position, true) < Pow(INCAPSURVIVORCHECKDIS, 2.0))
                                 sum++;
                         }
-
-                    if (sum == 0)
-                    {
-                        Debug_Print("Teleport方法，目标位置已经不能被正常生还者所看到");
-                        continue;
-                    }
-                    else Debug_Print("Teleport方法，目标位置依旧能被正常生还者看到，sum为：%d", sum);
+                    #if DEBUG
+                        if (sum == 0)
+                        {
+                            Debug_Print("Teleport方法，目标位置已经不能被正常生还者所看到");
+                            continue;
+                        }
+                        else Debug_Print("Teleport方法，目标位置依旧能被正常生还者看到，sum为：%d", sum);
+                    #endif
                 }
                 else continue;
 
@@ -1067,9 +1076,6 @@ stock bool PlayerVisibleTo(float targetposition[3], bool IsTeleport = false)
                 delete trace;    // 用完就 delete，不然迟早会忘
                 if ((GetVectorDistance(targetposition, vStart, false) + 75.0) >= GetVectorDistance(position, targetposition))
                     return true;
-
-                // else // 都 return 了就别 else 了，一堆 大括号 + 缩进 看着眼疼
-                // {
                 spawnPos = targetposition;
                 spawnPos[2] += 40.0;
                 MakeVectorFromPoints(spawnPos, position, vLookAt);
@@ -1085,13 +1091,10 @@ stock bool PlayerVisibleTo(float targetposition[3], bool IsTeleport = false)
                 else delete trace2;
 
                 return true;
-                // delete trace2; // 你都 return 了，还怎么delete？？？
-                // }
             }
             else delete trace;
 
             return true;
-            // delete trace; // 你都 return 了，还怎么delete？？？
         }
     }
     return false;
@@ -1132,11 +1135,15 @@ stock bool PlayerVisibleToSDK(float targetposition[3], bool IsTeleport = false)
 
                     if (sum == 0)
                     {
-                        Debug_Print("Teleport方法，目标位置已经不能被正常生还者所看到");
+                        #if DEBUG
+                            Debug_Print("Teleport方法，目标位置已经不能被正常生还者所看到");
+                        #endif
                         skipcount++;
                         continue;
                     }
-                    else Debug_Print("Teleport方法，目标位置依旧能被正常生还者看到，sum为：%d", sum);
+                    #if DEBUG
+                        else Debug_Print("Teleport方法，目标位置依旧能被正常生还者看到，sum为：%d", sum);
+                    #endif
                 }
                 else
                 {
@@ -1248,8 +1255,12 @@ bool CanBeTeleport(int client)
     if (IsInfectedBot(client) && IsClientInGame(client) && IsPlayerAlive(client) && GetEntProp(client, Prop_Send, "m_zombieClass") != ZC_TANK && !IsPinningSomeone(client))
     {
         // 防止无声口水 (使用 SIPool 后无此问题)
-        if (!g_bSIPoolAvailable && IsSpitter(client) && GetGameTime() - g_fSpitterSpitTime[client] < SPIT_INTERVAL)
-            return false;
+        //if (!g_bSIPoolAvailable && IsSpitter(client) && GetGameTime() - g_fSpitterSpitTime[client] < SPIT_INTERVAL)
+            //return false;
+	if(IsSpitter(client) && GetGameTime() - g_fSpitterSpitTime[client] < SPIT_INTERVAL)
+	{
+		return false;
+	}
 
         if (GetClosetSurvivorDistance(client) < g_fSpawnDistanceMin)
             return false;
@@ -1301,7 +1312,7 @@ Action Timer_PositionSi(Handle timer)
 
                         aTeleportQueue.Push(type);
                         g_iTeleportIndex += 1;
-                        Debug_Print("<传送队列> %N踢出，进入传送队列，当前 <传送队列> 队列长度：%d 队列索引：%d 当前记录特感总数为：%d , 真实数量为：%d", client, aTeleportQueue.Length, g_iTeleportIndex, g_iTotalSINum, GetCurrentSINum());
+                        //Debug_Print("<传送队列> %N踢出，进入传送队列，当前 <传送队列> 队列长度：%d 队列索引：%d 当前记录特感总数为：%d , 真实数量为：%d", client, aTeleportQueue.Length, g_iTeleportIndex, g_iTotalSINum, GetCurrentSINum());
                         //不再单独处理spitter防止无声口水，已经在canbeteleport处理
                         if (g_iSINum[type - 1] > 0) g_iSINum[type - 1]--;
                         else g_iSINum[type - 1] = 0;
@@ -1310,8 +1321,10 @@ Action Timer_PositionSi(Handle timer)
                         else g_iTotalSINum = 0;
 
                         // KickClient(client, "传送刷特，踢出");
-                        if (g_bSIPoolAvailable) g_hSIPool.ReturnSIBot(client);
-                        else KickClient(client, "传送刷特，踢出");
+                        //if (g_bSIPoolAvailable) 
+                            //g_hSIPool.ReturnSIBot(client);
+                        //else 
+                        KickClient(client, "传送刷特，踢出");
 
                         Debug_Print("当前 <传送队列> 队列长度：%d 队列索引：%d 当前记录特感总数为：%d , 真实数量为：%d", aTeleportQueue.Length, g_iTeleportIndex, g_iTotalSINum, GetCurrentSINum());
                         g_iTeleCount[client] = 0;
@@ -1418,10 +1431,11 @@ bool CheckRushManAndAllPinned()
 
                     return PinnedNumber == iSurvivorIndex;
                 }
-
-        if (!testSurvior)
-            Debug_Print("跑男由于和其他正常生还者过远触发");
-        else Debug_Print("跑男由于和特感过远触发");
+        #if DEBUG
+            if (!testSurvior)
+                Debug_Print("跑男由于和其他正常生还者过远触发");
+            else Debug_Print("跑男由于和特感过远触发");
+        #endif
 
         g_bPickRushMan = true;
         g_iRushManIndex = target;
@@ -1655,7 +1669,7 @@ public Action L4D_OnGetScriptValueInt(const char[] key, int &retVal)
 
 stock void Debug_Print(char[] format, any...)
 {
-#if (DEBUG)
+#if DEBUG
     {
         char sTime[32];
         FormatTime(sTime, sizeof(sTime), "%I-%M-%S", GetTime());

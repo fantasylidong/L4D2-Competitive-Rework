@@ -14,6 +14,7 @@
 #define ZC_CHARGER              6
 #define ZC_WITCH                7
 #define ZC_TANK                 8
+#define CommonInfectedBonus		20
 int 
 	iDidDamage[MAXPLAYERS + 1],
 	KillInfected[MAXPLAYERS+1],
@@ -165,13 +166,13 @@ void displaykillinfected()
 		client = players_clients[i];
 		if (IsValidClient(client) && GetClientTeam(client) == 2) 
 		{
-			PrintToChatAll("\x03特感\x04%2d \x03丧尸\x04%3d \x03黑/被黑\x04%2d/%2d \x03伤害\x04%4d \x05%N",KillSpecial[client], KillInfected[client],FriendDamage[client],DamageFriend[client],iDidDamage[client], client);
+			PrintToChatAll("\x03特感\x04%2d \x03丧尸\x04%3d \x03黑/被黑\x04%2d/%2d \x03伤害\x04%4d \x05%N",KillSpecial[client], KillInfected[client],FriendDamage[client],DamageFriend[client],iDidDamage[client] + KillInfected[client] * CommonInfectedBonus, client);
 		}
 	}
 }
 public int SortByDamageDesc(int elem1, int elem2, const int[] array, Handle hndl)
 {
-	if (iDidDamage[elem1] > iDidDamage[elem2]) return -1;
+	if (iDidDamage[elem1] + KillInfected[elem1] * CommonInfectedBonus > iDidDamage[elem2] + KillInfected[elem2] * CommonInfectedBonus) return -1;
 	else if (iDidDamage[elem2] > iDidDamage[elem1]) return 1;
 	else if (elem1 > elem2) return -1;
 	else if (elem2 > elem1) return 1;

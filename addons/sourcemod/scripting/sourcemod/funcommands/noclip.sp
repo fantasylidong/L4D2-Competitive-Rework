@@ -85,7 +85,7 @@ public void OnLibraryAdded(const char[] name) {
 }
 
 public void OnLibraryRemoved(const char[] name) {
-	if (strcmp(name, "WeaponHandling") == 0)
+	if (strcmp(name, "rpg") == 0)
 		g_bRPG = false;
 }
 
