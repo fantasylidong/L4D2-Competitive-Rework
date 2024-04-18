@@ -2,7 +2,7 @@
  * @Author: 我是派蒙啊
  * @Last Modified by: 我是派蒙啊
  * @Create Date: 2024-02-17 11:15:10
- * @Last Modified time: 2024-04-03 13:11:54
+ * @Last Modified time: 2024-04-18 14:20:17
  * @Github: https://github.com/Paimon-Kawaii
  */
 
@@ -15,7 +15,7 @@
     #define LOGFILE "addons/sourcemod/logs/si_pool_log.txt"
 #endif
 
-#define VERSION       "2024.04.03#136"
+#define VERSION       "2024.04.18#145"
 
 #define LIBRARY_NAME  "si_pool"
 #define GAMEDATA_FILE "si_pool"
@@ -126,9 +126,9 @@ public void OnPluginStart()
 
 public bool OnClientConnect(int client)
 {
-    int count = MaxClients;
+    int count = MaxClients - 2;
     int target_cnt = GetClientCount(false);
-    if (g_cvarSvMaxPlayers != null) count = g_cvarSvMaxPlayers.IntValue - 1;
+    if (g_cvarSvMaxPlayers != null) count -= g_cvarSvMaxPlayers.IntValue;
     if (target_cnt < count) return true;
     // if (g_iLastDeadTypeIdx == -1) return true;
 
@@ -153,6 +153,8 @@ any Native_SIPool_Instance_get(Handle plugin, int numParams)
 any Native_SIPool_RequestSIBot(Handle plugin, int numParams)
 {
     int zclass_idx = GetNativeCell(2) - 1;
+    if (zclass_idx < 0) return -1;
+
     int size = g_iPoolSize[zclass_idx];
     if (size < 1)
     {
@@ -175,13 +177,13 @@ any Native_SIPool_RequestSIBot(Handle plugin, int numParams)
     int bot = g_iPoolArray[zclass_idx][size - index];
 #if DEBUG
     LogToFile(LOGFILE, "[SIPool] Start request (%s)pool, current size: %d", g_sZombieClass[zclass_idx], size);
-    LogToFile(LOGFILE, "[SIPool] %d is ghost:(%d), isalive:(%d)?", bot, IsGhost(bot), IsValidClient(bot) && IsPlayerAlive(bot));
+    LogToFile(LOGFILE, "[SIPool] %d is ghost:(%d), is alive:(%d)?", bot, IsGhost(bot), IsValidClient(bot) && IsPlayerAlive(bot));
 #endif
     while (!(IsValidClient(bot) && IsFakeClient(bot) && !IsPlayerAlive(bot)) && ++index <= size)
     {
         bot = g_iPoolArray[zclass_idx][size - index];
 #if DEBUG
-        LogToFile(LOGFILE, "[SIPool] %d is ghost:(%d), isalive:(%d)?", bot, IsGhost(bot), IsValidClient(bot) && IsPlayerAlive(bot));
+        LogToFile(LOGFILE, "[SIPool] %d is ghost:(%d), is alive:(%d)?", bot, IsGhost(bot), IsValidClient(bot) && IsPlayerAlive(bot));
 #endif
     }
     if (index > size && !(IsValidClient(bot) && IsFakeClient(bot) && !IsPlayerAlive(bot)))
@@ -214,8 +216,10 @@ any Native_SIPool_RequestSIBot(Handle plugin, int numParams)
         event.Fire();
     }
 
-    OnPoolSizeChanged(size, size - index, zclass_idx);
-    g_iPoolSize[zclass_idx] -= index;
+    int result = size - index;
+    if (result < 0) result = 0;
+    OnPoolSizeChanged(size, result, zclass_idx);
+    g_iPoolSize[zclass_idx] = result;
 
 #if DEBUG
     LogToFile(LOGFILE, "[SIPool] SI request: %d, type: %s", bot, g_sZombieClass[zclass_idx]);
@@ -302,11 +306,15 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
     // Return bot;
     ResetDeadZombie(client);
     g_iLastDeadTypeIdx = GetZombieClass(client) - 1;
-    g_iPoolArray[g_iLastDeadTypeIdx][g_iPoolSize[g_iLastDeadTypeIdx]++] = client;
+    if (g_iLastDeadTypeIdx < 0) return;
+
+    int index = g_iPoolSize[g_iLastDeadTypeIdx]++;
+    index = index > 0 ? index : 0;
+    g_iPoolArray[g_iLastDeadTypeIdx][index] = client;
 
 #if DEBUG
     LogToFile(LOGFILE, "[SIPool] SI dead: %d, (%s)pool sized(%d -> %d)", client, g_sZombieClass[g_iLastDeadTypeIdx], g_iPoolSize[g_iLastDeadTypeIdx] - 1, g_iPoolSize[g_iLastDeadTypeIdx]);
-    LogToFile(LOGFILE, "[SIPool] %d is ghost:(%d), isalive:(%d)?", client, IsGhost(client), IsPlayerAlive(client));
+    LogToFile(LOGFILE, "[SIPool] %d is ghost:(%d), is alive:(%d)?", client, IsGhost(client), IsPlayerAlive(client));
 #endif
 }
 
@@ -395,17 +403,18 @@ MRESReturn DTR_CBaseServer_ConnectClient()
 void KickClientOnServerFull(int target_cnt, int count)
 {
     int target_cls = g_iLastDeadTypeIdx;
+    if (target_cls < 0) target_cls = 0;
     int size = g_iPoolSize[target_cls];
-    if (size == 0) target_cls = 0;
-
-    int index = 1;
-    for (int kick_cnt = target_cnt - count + 1; kick_cnt > 0; kick_cnt--)
+    if (size <= 0) target_cls = 0;
+    int kick_cnt = target_cnt - count + 1;
+    while (kick_cnt > 0)
     {
-        while (target_cls < ZC_COUNT && (size = g_iPoolSize[target_cls]) == 0)
+        while (target_cls < ZC_COUNT && (size = g_iPoolSize[target_cls]) <= 0)
             target_cls++;
         if (target_cls >= ZC_COUNT) break;
+        int index = 1;
         int bot = g_iPoolArray[target_cls][size - index];
-        while (!IsInfected(bot))
+        while (!IsInfected(bot) && size > index)
             bot = g_iPoolArray[target_cls][size - (++index)];
 
         if (IsInfected(bot))
@@ -416,10 +425,13 @@ void KickClientOnServerFull(int target_cnt, int count)
 #endif
 
             KickClient(bot);
+            kick_cnt--;
         }
 
-        OnPoolSizeChanged(size, size - index, g_iLastDeadTypeIdx);
-        g_iPoolSize[g_iLastDeadTypeIdx] -= index;
+        int result = size - index;
+        if (result < 0) result = 0;
+        OnPoolSizeChanged(size, result, target_cls);
+        g_iPoolSize[target_cls] = result;
     }
 }
 
