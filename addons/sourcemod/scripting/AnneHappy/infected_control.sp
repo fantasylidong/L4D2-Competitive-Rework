@@ -1,7 +1,7 @@
 #pragma semicolon 1
 #pragma newdecls required
-#define DEBUG 1
-#define TESTBUG 1
+#define DEBUG 0
+#define TESTBUG 0
 
 // 头文件
 #include <sourcemod>
@@ -327,7 +327,7 @@ stock Action Cmd_StartSpawn(int client, int args)
     if (L4D_HasAnySurvivorLeftSafeArea())
     {
 #if TESTBUG
-        PrintToChatAll("目前是测试版本v2.1");
+        PrintToChatAll("目前是测试版本v2.2");
 #endif
         ResetStatus();
         CreateTimer(0.1, SpawnFirstInfected);
@@ -1076,6 +1076,7 @@ int IsSurvivorBait()
 #if TESTBUG
     Debug_Print("[前置条件]未满足");
 #endif 
+        g_iLadderBaitTimeCheckTime = 0;
         return 0;
     }
     // 条件1：如果玩家平均密度低于200而且附近有梯子，判断生还在Bait
@@ -1178,10 +1179,10 @@ Action CheckShouldSpawnOrNot(Handle timer)
                     PauseTimer();
                 }
                 // 检测超过6次生成普通僵尸
-                if (g_iBaitTimeCheckTime > 6) {
-                    SpawnCommonInfect(4);
+                if (g_iBaitTimeCheckTime > 6 && g_iBaitTimeCheckTime <= 26) {
+                    SpawnCommonInfect(2);
     #if TESTBUG
-                    Debug_Print("停刷，停刷超过%d次, 刷4个小僵尸，继续停刷", g_iBaitTimeCheckTime);
+                    Debug_Print("停刷，停刷超过%d次, 刷2个小僵尸，继续停刷", g_iBaitTimeCheckTime);
     #endif
                 }
             }
@@ -2287,10 +2288,10 @@ public void L4D2_HordeStatus(int status)
             CreateTimer(10.0, ResetHordeStatus, _, TIMER_FLAG_NO_MAPCHANGE);
             g_iHordeStatus = 2;
         }
-        else if(status == 3 && g_iHordeStatus != 1)
+        else if(status == 3 && g_iHordeStatus <= 2)
         {
 #if TESTBUG
-            Debug_Print("<尸潮状态> 有限尸潮机关，60s后重置尸潮状态");
+            Debug_Print("<尸潮状态> 有限尸潮机关，30s后重置尸潮状态");
 #endif
             g_iHordeStatus = 3;
             CreateTimer(60.0, ResetHordeStatus, _, TIMER_FLAG_NO_MAPCHANGE);
