@@ -81,11 +81,11 @@ Brevity flags:
 */
 public Plugin myinfo =
 {
-	name        = "Survivor MVP notification",
-	author      = "Tabun, Artifacial",
-	description = "Shows MVP for survivor team at end of round",
-	version     = "0.4",
-	url         = "https://github.com/alexberriman/l4d2_survivor_mvp"
+    name = "Survivor MVP notification",
+    author = "Tabun, Artifacial",
+    description = "Shows MVP for survivor team at end of round",
+    version = "0.3.2",
+    url = "https://github.com/alexberriman/l4d2_survivor_mvp"
 };
 
 ConVar
@@ -550,20 +550,83 @@ public void RoundEnd_Event(Handle event, const char[] name, bool dontBroadcast)
  */
 public Action Say_Cmd(int client, int args)
 {
-	if (!client)
-	{
-		return Plugin_Continue;
-	}
-
-	char sMessage[MAX_NAME_LENGTH];
-	GetCmdArg(1, sMessage, sizeof(sMessage));
-
-	if (StrEqual(sMessage, "!mvp") || StrEqual(sMessage, "!mvpme"))
-	{
-		return Plugin_Handled;
-	}
-
-	return Plugin_Continue;
+    new zombieClass = 0;
+    
+    // Victim details
+    new victimId = GetEventInt(event, "userid");
+    new victim = GetClientOfUserId(victimId);
+    
+    // Attacker details
+    new attackerId = GetEventInt(event, "attacker");
+    new attacker = GetClientOfUserId(attackerId);
+    
+    // Misc details
+    new damageDone = GetEventInt(event, "dmg_health");
+    
+    // no world damage or flukes or whatevs, no bot attackers, no infected-to-infected damage
+    if (victimId && attackerId && IsClientAndInGame(victim) && IsClientAndInGame(attacker))
+    {
+        // If a survivor is attacking infected
+        if (GetClientTeam(attacker) == TEAM_SURVIVOR && GetClientTeam(victim) == TEAM_INFECTED)
+        {
+            zombieClass = GetEntProp(victim, Prop_Send, "m_zombieClass");
+            
+            // Increment the damage for that class to the total
+            iDidDamageClass[attacker][zombieClass] += damageDone;
+            //PrintToConsole(attacker, "Attacked: %d - Dmg: %d", zombieClass, damageDone);
+            //PrintToConsole(attacker, "Total damage for %d: %d", zombieClass, iDidDamageClass[attacker][zombieClass]);
+            
+            // separately store SI and tank damage
+            if (zombieClass >= ZC_SMOKER && zombieClass < ZC_WITCH)
+            {
+                // If the tank is up, let's store separately
+                if (tankSpawned) {
+                    siDmgDuringTank[attacker] += damageDone;
+                    //ttlSiDmgDuringTank += damageDone;
+                }
+                
+                iDidDamage[attacker] += damageDone;
+                iDidDamageAll[attacker] += damageDone;
+               // iTotalDamage += damageDone;
+                iTotalDamageAll += damageDone;
+            }
+            else if (zombieClass == ZC_TANK && damageDone != 5000) // For some reason the last attacker does 5k damage?
+            {
+                // We want to track tank damage even if we're not factoring it in to our mvp result
+                iDidDamageTank[attacker] += damageDone;
+                //iTotalDamageTank += damageDone;
+                
+                // If we're factoring it in, include it in our overall damage
+                if (bCountTankDamage)
+                {
+                    iDidDamageAll[attacker] += damageDone;
+                    iTotalDamageAll += damageDone;
+                }
+            }
+        }
+        
+        // Otherwise if friendly fire
+        else if (GetClientTeam(attacker) == TEAM_SURVIVOR && GetClientTeam(victim) == TEAM_SURVIVOR && bTrackFF)                // survivor on survivor action == FF
+        {
+            if (!bRUPActive || GetEntityMoveType(victim) != MOVETYPE_NONE || !L4D_IsPlayerIncapacitated(victim) || bPlayerLeftStartArea) {
+                // but don't record while frozen in readyup / before leaving saferoom / victim is incapacitated
+                iDidFF[attacker] += damageDone;
+                iTotalFF += damageDone;
+            }
+        }
+        
+        // Otherwise if infected are inflicting damage on a survivor
+        else if (GetClientTeam(attacker) == TEAM_INFECTED && GetClientTeam(victim) == TEAM_SURVIVOR) {
+            zombieClass = GetEntProp(attacker, Prop_Send, "m_zombieClass");
+            
+            // If we got hit by a tank, let's see what type of damage it was
+            // If it was from a rock throw
+            if (tankThrow && zombieClass == ZC_TANK && damageDone == 24) {
+                rocksEaten[victim]++;
+            }
+            damageReceived[victim] += damageDone;
+        }
+    }
 }
 
 public Action SurvivorMVP_Cmd(int client, int args)
@@ -1055,23 +1118,21 @@ public bool isHunter(int zombieClass)
 
 public void InfectedDeath_Event(Handle event, const char[] name, bool dontBroadcast)
 {
-	int
-		attackerId = GetEventInt(event, "attacker"),
-		attacker   = GetClientOfUserId(attackerId);
-
-	if (attackerId && IsClientAndInGame(attacker) && GetClientTeam(attacker) == TEAM_SURVIVOR)
-	{
-		// If the tank is up, let's store separately
-		if (tankSpawned)
-		{
-			commonKilledDuringTank[attacker]++;
-			ttlCommonKilledDuringTank++;
-		}
-
-		iGotCommon[attacker]++;
-		iTotalCommon++;
-		// if victimType > 2, it's an "uncommon" (of some type or other) -- do nothing with this ftpresent.
-	}
+    new attackerId = GetEventInt(event, "attacker");
+    new attacker = GetClientOfUserId(attackerId);
+    
+    if (bPlayerLeftStartArea && attackerId && IsClientAndInGame(attacker) && GetClientTeam(attacker) == TEAM_SURVIVOR)
+    {
+        // If the tank is up, let's store separately
+        if (tankSpawned) {
+            commonKilledDuringTank[attacker]++;
+            ttlCommonKilledDuringTank++;
+        }
+        
+        iGotCommon[attacker]++;
+        iTotalCommon++;
+        // if victimType > 2, it's an "uncommon" (of some type or other) -- do nothing with this ftpresent.
+    }
 }
 
 /*
