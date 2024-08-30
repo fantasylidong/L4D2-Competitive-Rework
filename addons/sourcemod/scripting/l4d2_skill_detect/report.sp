@@ -378,7 +378,7 @@ stock void HandleDeathCharge(int attacker, int victim, float height, float dista
 			if (IsValidClientInGame(i) && !IsFakeClient(i))
 			{
 				char Buffer[64];
-				Format(Buffer, sizeof(Buffer), "%t", "Bowling", i);
+				Format(Buffer, sizeof(Buffer), "%T", "Bowling", i);
 
 				if (IsValidClientInGame(attacker) && IsValidClientInGame(victim) && !IsFakeClient(attacker))
 					CPrintToChat(i, "%t %t", "Tag++++", "DeathCharged", attacker, victim, (bCarried) ? "" : Buffer, RoundFloat(height));
