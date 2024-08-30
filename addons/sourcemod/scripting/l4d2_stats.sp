@@ -423,42 +423,56 @@ void Event_PlayerDeath(Event hEvent, const char[] sEventName, bool bDontBroadcas
 				char buf[MAX_NAME_LENGTH + 8];
 				int  assist_shots = g_iShotsDealt[victim][assisters[0][0]];
 
-				// Construct assisters string
-				Format(assister_string, sizeof(assister_string), "%N (%d/%d shot%s)",
-				       assisters[0][0], assisters[0][1], g_iShotsDealt[victim][assisters[0][0]], assist_shots == 1 ? "" : "s");
-
-				for (i = 1; i < assister_count; i++)
+				for (int i = 0; i < MaxClients; i++)
 				{
-					assist_shots = g_iShotsDealt[victim][assisters[i][0]];
-					Format(buf, sizeof(buf), ", %N (%d/%d shot%s)", assisters[i][0], assisters[i][1], assist_shots, assist_shots == 1 ? "" : "s");
+					if (i > 0 && IsClientInGame(i) && !IsFakeClient(i))
+					{
+						// Plural problem
+						char sPlural[8];
+						Format(sPlural, sizeof(sPlural), "%T", "Plural", i);
 
-					StrCat(assister_string, sizeof(assister_string), buf);
-				}
+						// details
+						char sWord[32];
+						Format(sWord, sizeof(sWord), "%T", "Shot", i);
 
-				/*
-				// Print to assisters
-				for (i = 0; i < assister_count; i++) {
-				    CPrintToChat(assisters[i][0], "{green}★ {olive}%N {default}teamskeeted {olive}%N {default}for {blue}%d damage {default}in {blue}%d shot%c{default}. Assisted by: {olive}%s", \
-				                                        attacker, victim, damage, shots, plural, assister_string);
-				}
+						// Construct assisters string
+						Format(assister_string, sizeof(assister_string), "%N (%d/%d %s%s)",
+				       		assisters[0][0], assisters[0][1], g_iShotsDealt[victim][assisters[0][0]], sWord, assist_shots == 1 ? "" : sPlural);
 
-				// Print to victim
-				CPrintToChat(victim, "{green}★ {default}You were teamskeeted by {olive}%N {default}for {blue}%d damage {default}in {blue}%d shot%c{default}. Assisted by: {olive}%s", \
+						for (i = 1; i < assister_count; i++)
+						{
+							assist_shots = g_iShotsDealt[victim][assisters[i][0]];
+							Format(buf, sizeof(buf), ", %N (%d/%d %s%s)", assisters[i][0], assisters[i][1], assist_shots, sWord, assist_shots == 1 ? "" : sPlural);
+
+							StrCat(assister_string, sizeof(assister_string), buf);
+						}
+
+						/*
+						// Print to assisters
+						for (i = 0; i < assister_count; i++) {
+				    		CPrintToChat(assisters[i][0], "{green}★ {olive}%N {default}teamskeeted {olive}%N {default}for {blue}%d damage {default}in {blue}%d shot%c{default}. Assisted by: {olive}%s", \
+				                                        		attacker, victim, damage, shots, plural, assister_string);
+						}
+
+						// Print to victim
+						CPrintToChat(victim, "{green}★ {default}You were teamskeeted by {olive}%N {default}for {blue}%d damage {default}in {blue}%d shot%c{default}. Assisted by: {olive}%s", \
 				                                            attacker, damage, shots, plural, assister_string);
 
-				// Finally print to attacker
-				CPrintToChat(attacker, "{green}★ {default}You teamskeeted {olive}%N {default}for {blue}%d damage {default}in {blue}%d shot%c{default}. Assisted by: {olive}%s", \
-				                                            victim, damage, shots, plural, assister_string);
+						// Finally print to attacker
+						CPrintToChat(attacker, "{green}★ {default}You teamskeeted {olive}%N {default}for {blue}%d damage {default}in {blue}%d shot%c{default}. Assisted by: {olive}%s", \
+				                                            		victim, damage, shots, plural, assister_string);
 
-				//Print to Specs!
-				for (int b = 1; b <= MaxClients; b++) {
-				    if (IsClientInGame(b) && GetClientTeam(b) == TEAM_SPECTATOR) {
-				        CPrintToChat(b, "{green}★ {olive}%N {default}teamskeeted {olive}%N {default}for {blue}%d damage {default}in {blue}%d shot%c{default}. Assisted by: {olive}%s", \
-				                                            attacker, victim, damage, shots, plural, assister_string);
-				    }
-				}*/
+						//Print to Specs!
+						for (int b = 1; b <= MaxClients; b++) {
+				    		if (IsClientInGame(b) && GetClientTeam(b) == TEAM_SPECTATOR) {
+				        		CPrintToChat(b, "{green}★ {olive}%N {default}teamskeeted {olive}%N {default}for {blue}%d damage {default}in {blue}%d shot%c{default}. Assisted by: {olive}%s", \
+				                                            		attacker, victim, damage, shots, plural, assister_string);
+				    		}
+						}*/
 
-				CPrintToChatAll("%t %t", "Tag+" , "TeamSkeeted", attacker, victim, damage, shots, shots == 1 ? "" : "s", assister_string);
+						CPrintToChat(i, "%t %t", "Tag+" , "TeamSkeeted", attacker, victim, damage, shots, shots == 1 ? "" : sPlural, assister_string);
+					}
+				}
 			}
 			else {
 				/*CPrintToChat(victim, "{green}★ {default}You were skeeted by {olive}%N {default}in {blue}%d shot%c", attacker, shots, plural);
@@ -472,7 +486,18 @@ void Event_PlayerDeath(Event hEvent, const char[] sEventName, bool bDontBroadcas
 				    }
 				}*/
 
-				CPrintToChatAll("%t %t", "Tag+", "Skeeted", attacker, victim, shots, shots == 1 ? "" : "s");
+				for (int i = 1; i < MaxClients; i++)
+				{
+					if (IsClientInGame(i) && !IsFakeClient(i))
+					{
+						// Plural problem
+						char sPlural[8];
+						Format(sPlural, sizeof(sPlural), "%T", "Plural", i);
+
+						CPrintToChat(i, "%t %t", "Tag+", "Skeeted", attacker, victim, shots, shots == 1 ? "" : sPlural);
+					}
+				}
+
 			}
 		}
 	}
