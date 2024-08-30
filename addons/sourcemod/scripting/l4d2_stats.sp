@@ -423,17 +423,17 @@ void Event_PlayerDeath(Event hEvent, const char[] sEventName, bool bDontBroadcas
 				char buf[MAX_NAME_LENGTH + 8];
 				int  assist_shots = g_iShotsDealt[victim][assisters[0][0]];
 
-				for (int i = 0; i < MaxClients; i++)
+				for (int x = 0; x < MaxClients; x++)
 				{
-					if (i > 0 && IsClientInGame(i) && !IsFakeClient(i))
+					if (x > 0 && IsClientInGame(x) && !IsFakeClient(x))
 					{
 						// Plural problem
 						char sPlural[8];
-						Format(sPlural, sizeof(sPlural), "%T", "Plural", i);
+						Format(sPlural, sizeof(sPlural), "%T", "Plural", x);
 
 						// details
 						char sWord[32];
-						Format(sWord, sizeof(sWord), "%T", "Shot", i);
+						Format(sWord, sizeof(sWord), "%T", "Shot", x);
 
 						// Construct assisters string
 						Format(assister_string, sizeof(assister_string), "%N (%d/%d %s%s)",
@@ -470,7 +470,7 @@ void Event_PlayerDeath(Event hEvent, const char[] sEventName, bool bDontBroadcas
 				    		}
 						}*/
 
-						CPrintToChat(i, "%t %t", "Tag+" , "TeamSkeeted", attacker, victim, damage, shots, shots == 1 ? "" : sPlural, assister_string);
+						CPrintToChat(x, "%t %t", "Tag+" , "TeamSkeeted", attacker, victim, damage, shots, shots == 1 ? "" : sPlural, assister_string);
 					}
 				}
 			}
@@ -486,15 +486,15 @@ void Event_PlayerDeath(Event hEvent, const char[] sEventName, bool bDontBroadcas
 				    }
 				}*/
 
-				for (int i = 1; i < MaxClients; i++)
+				for (int x = 1; x < MaxClients; x++)
 				{
-					if (IsClientInGame(i) && !IsFakeClient(i))
+					if (IsClientInGame(x) && !IsFakeClient(x))
 					{
 						// Plural problem
 						char sPlural[8];
-						Format(sPlural, sizeof(sPlural), "%T", "Plural", i);
+						Format(sPlural, sizeof(sPlural), "%T", "Plural", x);
 
-						CPrintToChat(i, "%t %t", "Tag+", "Skeeted", attacker, victim, shots, shots == 1 ? "" : sPlural);
+						CPrintToChat(x, "%t %t", "Tag+", "Skeeted", attacker, victim, shots, shots == 1 ? "" : sPlural);
 					}
 				}
 
