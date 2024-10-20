@@ -10,8 +10,8 @@
 
 Handle g_hVote;
 char   g_sSlots[32];
-ConVar hMaxSlots;
-int    MaxSlots;
+ConVar hMaxSlots,hNonAdminMinSlots;
+int    MaxSlots,NonAdminMinSlots;
 
 public Plugin myinfo =
 {
@@ -27,8 +27,11 @@ public void OnPluginStart()
 	LoadTranslations("slots_vote.phrases");
 	RegConsoleCmd("sm_slots", SlotsRequest);
 	hMaxSlots = CreateConVar("slots_max_slots", "30", "Maximum amount of slots you wish players to be able to vote for? (DON'T GO HIGHER THAN 30)");
+	hNonAdminMinSlots = CreateConVar("slots_nonAdmin_min_slots", "4", "Maximum amount of slots you wish players to be able to vote for? (DON'T GO HIGHER THAN 30)");
 	MaxSlots  = hMaxSlots.IntValue;
+	NonAdminMinSlots = hNonAdminMinSlots.IntValue;
 	HookConVarChange(hMaxSlots, CVarChanged);
+	HookConVarChange(hNonAdminMinSlots, CVarChanged);
 }
 
 public Action SlotsRequest(int client, int args)
@@ -60,6 +63,10 @@ public Action SlotsRequest(int client, int args)
 			if (Int > MaxSlots)
 			{
 				CPrintToChat(client, "%t %t", "Tag", "LimitSlotsAbove", MaxSlots);
+			}
+			else if(Int < NonAdminMinSlots)
+			{
+				CPrintToChat(client, "%t %t", "Tag", "LimitSlotsBelow", NonAdminMinSlots);
 			}
 			else
 			{
@@ -169,6 +176,7 @@ public void SlotVoteResultHandler(Handle vote, int num_votes, int num_clients, c
 public void CVarChanged(Handle cvar, char[] oldValue, char[] newValue)
 {
 	MaxSlots = GetConVarInt(hMaxSlots);
+	NonAdminMinSlots = GetConVarInt(hNonAdminMinSlots);
 }
 
 stock int numSlots() {
