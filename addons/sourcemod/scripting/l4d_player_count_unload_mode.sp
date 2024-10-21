@@ -53,7 +53,7 @@
 #include <sdkhooks>
 #include <multicolors>      // https://github.com/fbef0102/L4D1_2-Plugins/releases
 
-#define PLUGIN_VERSION			"1.0-2024/10/19"
+#define PLUGIN_VERSION			"1.0-2024/10/21"
 #define PLUGIN_NAME			    "l4d_player_count_unload_mode"
 #define DEBUG 0
 
@@ -116,8 +116,6 @@ Handle
 
 public void OnPluginStart()
 { 
-    g_aTimeList = new ArrayList(sizeof(ETimeData));
-
     survivor_limit = FindConVar("survivor_limit");
     z_max_player_zombies = FindConVar("z_max_player_zombies");
 
@@ -127,7 +125,7 @@ public void OnPluginStart()
     g_hCvarFlag         = CreateConVar(	PLUGIN_NAME ... "_flag", 		  "b",              "有這權限的管理員在場就不會被強制卸載模式", CVAR_FLAGS);
     g_hCvarDelay        = CreateConVar(	PLUGIN_NAME ... "_delay", 		  "60.0",           "地圖載入此秒數後才會檢測時間與人數", CVAR_FLAGS, true, 0.0);
     CreateConVar(                       PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
-    //AutoExecConfig(true,                PLUGIN_NAME);
+    AutoExecConfig(true,                PLUGIN_NAME);
 
     GetCvars();
     GetTimeCvars();
@@ -176,25 +174,26 @@ void GetCvars()
 
 void GetTimeCvars()
 {
+    delete g_aTimeList;
+    g_aTimeList = new ArrayList(sizeof(ETimeData));
+
     char sCvarimeCopy[128], sTime[12];
     FormatEx(sCvarimeCopy, sizeof(sCvarimeCopy), "%s", g_sCvarime);
     int index = SplitString(sCvarimeCopy, ",", sTime, sizeof(sTime));
-    if(index == -1)
+    if(index >= 0)
     {
-        LogError("Convar \"_time\" %s error", g_sCvarime);
-    }
+        do
+        {
+            //LogError("Time: %s, index: %d", sTime, index);
+            ETimeData eTimeData;
+            ConvertStringTimeToInt(sTime, eTimeData);
+            g_aTimeList.PushArray(eTimeData);
 
-    do
-    {
-        //LogError("Time: %s, index: %d", sTime, index);
-        ETimeData eTimeData;
-        ConvertStringTimeToInt(sTime, eTimeData);
-        g_aTimeList.PushArray(eTimeData);
-
-        FormatEx(sCvarimeCopy, sizeof(sCvarimeCopy), "%s", sCvarimeCopy[index]);
-        index = SplitString(sCvarimeCopy, ",", sTime, sizeof(sTime));
+            FormatEx(sCvarimeCopy, sizeof(sCvarimeCopy), "%s", sCvarimeCopy[index]);
+            index = SplitString(sCvarimeCopy, ",", sTime, sizeof(sTime));
+        }
+        while(index != -1);
     }
-    while(index != -1);
 
     //LogError("last Time: %s", sCvarimeCopy);
     ETimeData eTimeData;
