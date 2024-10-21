@@ -121,7 +121,7 @@ public void OnPluginStart()
 
     g_hCvarEnable 		= CreateConVar( PLUGIN_NAME ... "_enable",        "1",              "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
     g_hCvarTime 		= CreateConVar(	PLUGIN_NAME ... "_time", 		  "16:00~23:59",    "檢測的時間段, 寫法xx:xx~xx:xx (二十四小時制), 寫多時間段請用逗號區隔", CVAR_FLAGS);
-    g_hCvarCount        = CreateConVar(	PLUGIN_NAME ... "_count", 		  "4",              "檢測 survivor_limit + infected 空位 <= 此數值之時，強制執行sm_resetmatch, 卸載模式", CVAR_FLAGS, true, 1.0, true, 32.0);
+    g_hCvarCount        = CreateConVar(	PLUGIN_NAME ... "_count", 		  "3",              "檢測 survivor_limit + infected 空位 <= 此數值之時，強制執行sm_resetmatch, 卸載模式", CVAR_FLAGS, true, 1.0, true, 32.0);
     g_hCvarFlag         = CreateConVar(	PLUGIN_NAME ... "_flag", 		  "b",              "有這權限的管理員在場就不會被強制卸載模式", CVAR_FLAGS);
     g_hCvarDelay        = CreateConVar(	PLUGIN_NAME ... "_delay", 		  "60.0",           "地圖載入此秒數後才會檢測時間與人數", CVAR_FLAGS, true, 0.0);
     CreateConVar(                       PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
