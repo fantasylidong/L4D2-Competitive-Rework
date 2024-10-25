@@ -1,0 +1,62 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Offsets"
+		{
+			"CFrameSnapshotManager::m_PackedEntitiesPool"
+			{
+				"linux"		"40"
+				"windows"	"40"
+			}
+		}
+		
+		"Signatures"
+		{
+			"CFrameSnapshotManager::LevelChanged"
+			{
+				"library"	"engine"
+				"linux"		"@_ZN21CFrameSnapshotManager12LevelChangedEv"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8D\x4E\x2A\xE8\x2A\x2A\x2A\x2A\x68\x00\x20\x00\x00\xC7\x86\x2A\x2A\x2A\x2A\x00\x00\x00\x00\x6A\x00\x81\xC6"
+			}
+
+			"CStringPool::Allocate"
+			{
+				"library"   "server"
+				"linux"     "@_ZN11CStringPool8AllocateEPKc"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x56\x8D\x45\x08\x50\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x0F\xB7\xC0\xB9"
+			}
+		}
+	}
+
+	"left4dead"
+	{
+		"Offsets"
+		{
+			"CFrameSnapshotManager::m_PackedEntitiesPool"
+			{
+				"linux"		"40"
+				"windows"	"40"
+			}
+		}
+		
+		"Signatures"
+		{
+			"CFrameSnapshotManager::LevelChanged"
+			{
+				"library"	"engine"
+				"linux"		"@_ZN21CFrameSnapshotManager12LevelChangedEv"
+				"windows"	"\x56\x8B\xF1\x8D\x4E\x58"
+				// 56 8B F1 8D 4E 58
+			}
+
+			"CStringPool::Allocate"
+			{
+				"library"   "server"
+				"linux"     "@_ZN11CStringPool8AllocateEPKc"
+				"windows"	"\x51\x56\x8D\x44\x24\x0C\x50\x8B\xF1"
+				// 51 56 8D 44 24 0C 50 8B F1
+			}
+		}
+	}
+}
