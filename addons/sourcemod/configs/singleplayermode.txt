@@ -1,0 +1,464 @@
+"Cfgs"
+{
+	"服务器选项"
+	{
+		"sm_restartmap"
+		{
+			"message" "重置当前地图"
+		}
+		"sm_restart"
+		{
+			"message" "服务器端重启"
+		}
+	}
+	"Anne版本选择"
+	{
+		"sm_fm AnneHappy"
+		{
+			"message" "最新版本"
+		}
+		"exec vote/Anne/Anne23-1.cfg"
+		{
+			"message" "23-1月版本"
+		}
+	}
+	"特感数量"
+	{
+		"exec vote/normal/AnneHappy1.cfg"
+		{
+			"message" "1特模式"
+		}
+		"exec vote/normal/AnneHappy2.cfg"
+		{
+			"message" "2特模式"
+		}
+		"exec vote/normal/AnneHappy3.cfg"
+		{
+			"message" "3特模式"
+		}
+		"exec vote/normal/AnneHappy4.cfg"
+		{
+			"message" "4特模式"
+		}
+		"exec vote/normal/AnneHappy5.cfg"
+		{
+			"message" "5特模式"
+		}
+		"exec vote/normal/AnneHappy6.cfg"
+		{
+			"message" "6特模式"
+		}
+		"exec vote/normal/AnneHappy7.cfg"
+		{
+			"message" "7特模式"
+		}
+		"exec vote/normal/AnneHappy8.cfg"
+		{
+			"message" "8特模式"
+		}
+		"exec vote/normal/AnneHappy9.cfg"
+		{
+			"message" "9特模式"
+		}
+		"exec vote/normal/AnneHappy10.cfg"
+		{
+			"message" "10特模式"
+		}
+		"exec vote/normal/AnneHappy11.cfg"
+		{
+			"message" "11特模式"
+		}
+		"exec vote/normal/AnneHappy12.cfg"
+		{
+			"message" "12特模式"
+		}
+		"exec vote/normal/AnneHappy13.cfg"
+		{
+			"message" "13特模式"
+		}
+		"exec vote/normal/AnneHappy14.cfg"
+		{
+			"message" "14特模式"
+		}
+		"exec vote/normal/AnneHappy15.cfg"
+		{
+			"message" "15特模式"
+		}
+		"exec vote/normal/AnneHappy16.cfg"
+		{
+			"message" "16特模式"
+		}
+		"exec vote/normal/AnneHappy17.cfg"
+		{
+			"message" "17特模式"
+		}
+		"exec vote/normal/AnneHappy18.cfg"
+		{
+			"message" "18特模式"
+		}
+		"exec vote/normal/AnneHappy19.cfg"
+		{
+			"message" "19特模式"
+		}
+		"exec vote/normal/AnneHappy20.cfg"
+		{
+			"message" "20特模式"
+		}
+	}
+	"复活时间"
+	{
+		"sm_cvar versus_special_respawn_interval 0"
+		{
+			"message" "0秒"
+		}
+		"sm_cvar versus_special_respawn_interval 1"
+		{
+			"message" "1秒"
+		}
+		"sm_cvar versus_special_respawn_interval 2"
+		{
+			"message" "2秒"
+		}
+		"sm_cvar versus_special_respawn_interval 3"
+		{
+			"message" "3秒"
+		}
+		"sm_cvar versus_special_respawn_interval 4"
+		{
+			"message" "4秒"
+		}
+		"sm_cvar versus_special_respawn_interval 5"
+		{
+			"message" "5秒"
+		}
+		"sm_cvar versus_special_respawn_interval 6"
+		{
+			"message" "6秒"
+		}
+		"sm_cvar versus_special_respawn_interval 7"
+		{
+			"message" "7秒"
+		}
+		"sm_cvar versus_special_respawn_interval 8"
+		{
+			"message" "8秒"
+		}
+		"sm_cvar versus_special_respawn_interval 9"
+		{
+			"message" "9秒"
+		}
+		"sm_cvar versus_special_respawn_interval 10"
+		{
+			"message" "10秒"
+		}
+		"sm_cvar versus_special_respawn_interval 11"
+		{
+			"message" "11秒"
+		}
+		"sm_cvar versus_special_respawn_interval 12"
+		{
+			"message" "12秒"
+		}
+		"sm_cvar versus_special_respawn_interval 13"
+		{
+			"message" "13秒"
+		}
+		"sm_cvar versus_special_respawn_interval 14"
+		{
+			"message" "14秒"
+		}
+		"sm_cvar versus_special_respawn_interval 15"
+		{
+			"message" "15秒"
+		}
+		"sm_cvar versus_special_respawn_interval 16"
+		{
+			"message" "16秒"
+		}
+		"sm_cvar versus_special_respawn_interval 17"
+		{
+			"message" "17秒"
+		}
+		"sm_cvar versus_special_respawn_interval 18"
+		{
+			"message" "18秒"
+		}
+		"sm_cvar versus_special_respawn_interval 19"
+		{
+			"message" "19秒"
+		}
+		"sm_cvar versus_special_respawn_interval 20"
+		{
+			"message" "20秒"
+		}
+	}
+	"刷特模式"
+	{
+		"sm_cvar inf_EnableAutoSpawnTime 1"
+		{
+			"message" "自动时间刷特"
+		}
+		"sm_cvar inf_EnableAutoSpawnTime 0"
+		{
+			"message" "固定时间刷特"
+		}
+	}
+	"特感最低生成距离"
+	{
+		"sm_cvar inf_SpawnDistanceMin 250.0"
+		{
+			"message" "250单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 300.0"
+		{
+			"message" "300单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 350.0"
+		{
+			"message" "350单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 400.0"
+		{
+			"message" "400单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 450.0"
+		{
+			"message" "450单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 500.0"
+		{
+			"message" "500单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 550.0"
+		{
+			"message" "550单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 600.0"
+		{
+			"message" "600单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 650.0"
+		{
+			"message" "650单位"
+		}
+		"sm_cvar inf_SpawnDistanceMin 700.0"
+		{
+			"message" "700单位"
+		}
+	}
+	"特感传送检测秒数"
+	{
+		"sm_cvar inf_TeleportCheckTime 1"
+		{
+			"message" "1秒"
+		}
+		"sm_cvar inf_TeleportCheckTime 2"
+		{
+			"message" "2秒"
+		}
+		"sm_cvar inf_TeleportCheckTime 3"
+		{
+			"message" "3秒"
+		}
+		"sm_cvar inf_TeleportCheckTime 4"
+		{
+			"message" "4秒"
+		}
+		"sm_cvar inf_TeleportCheckTime 5"
+		{
+			"message" "5秒"
+		}
+		"sm_cvar inf_TeleportCheckTime 6"
+		{
+			"message" "6秒"
+		}
+		"sm_cvar inf_TeleportCheckTime 7"
+		{
+			"message" "7秒"
+		}
+		"sm_cvar inf_TeleportCheckTime 8"
+		{
+			"message" "8秒"
+		}
+	}
+	"mixmap插件开关"
+	{
+		"exec vote/mix_on.cfg"
+		{
+			"message" "打开mixmap插件"
+		}
+		"exec vote/mix_off.cfg"
+		{
+			"message" "关闭mixmap插件"
+		}
+	}
+	"商店选项开关"
+	{
+		"sm_cvar ReturnBlood 1"
+		{
+			"message" "开启回血"
+		}
+		"sm_cvar ReturnBlood 0"
+		{
+			"message" "关闭回血"
+		}
+		"sm_cvar rpg_allow_biggun 1"
+		{
+			"message" "开启大枪购买"
+		}
+		"sm_cvar rpg_allow_biggun 0"
+		{
+			"message" "关闭大枪购买"
+		}
+	}
+	"开关Mod"
+	{
+		"exec vote/mod_on.cfg"
+		{
+			"message" "开启Mod"
+		}
+		"exec vote/mod_off.cfg"
+		{
+			"message" "关闭Mod"
+		}
+	}
+	"杂项"
+	{
+		"exec vote/gunrecoil_off.cfg"
+		{
+			"message" "关闭枪械抖动"
+		}
+		"exec vote/gunrecoil_on.cfg"
+		{
+			"message" "开启枪械抖动"
+		}
+		"exec vote/crouch_on.cfg"
+		{
+			"message" "开启无蓄力hunter[极牢]"
+		}
+		"exec vote/crouch_off.cfg"
+		{
+			"message" "关闭无蓄力hunter"
+		}
+		"exec vote/hard_on.cfg"
+		{
+			"message" "开启特感属性增强[极牢]"
+		}
+		"exec vote/hard_off.cfg"
+		{
+			"message" "关闭特感属性增强"
+		}
+		"sm_cvar specrates_fulltickspecnum 1"
+		{
+			"message" "限制旁观tick"
+		}
+	}
+	"武器配置"
+	{
+		"sm_cvar ZonemodWeapon 0"
+		{
+			"message" "AnneHappy枪械"
+		}
+		"sm_cvar ZonemodWeapon 1"
+		{
+			"message" "zonemod2.6.4枪械"
+		}
+		"sm_cvar ZonemodWeapon 2"
+		{
+			"message" "AnneHappyPlus枪械[10特以上]"
+		}
+	}
+	"推数模式"
+	{
+		"exec vote/shove/AnneHappy.cfg"
+		{
+			"message" "AnneHappy模式推"
+		}
+		"exec vote/shove/Zonemod.cfg"
+		{
+			"message" "zonemod模式推"
+		}
+	}
+	"Tank选项"
+	{
+		"sm_cvar ai_tank_bhop 1"
+		{
+			"message" "开启Tank连跳"
+		}
+		"sm_cvar ai_tank_bhop 0"
+		{
+			"message" "关闭Tank连跳"
+		}
+		"exec vote/Consume_on.cfg"
+		{
+			"message" "开启消耗克[22-7版本起有效]"
+		}
+		"exec vote/Consume_off.cfg"
+		{
+			"message" "关闭消耗克[22-7版本起有效]"
+		}
+		"sm_cvar l4d_multislots_autokicktank 1"
+		{
+			"message" "开启坦克自动踢出系统[上限:1]"
+		}
+		"sm_cvar l4d_multislots_autokicktank 0"
+		{
+			"message" "关闭坦克自动踢出系统"
+		}
+	}
+	"开关hud"
+	{
+		"sm_cvar l4d2_scripted_hud_enable 1"
+		{
+			"message" "打开hud"
+		}
+		"sm_cvar l4d2_scripted_hud_enable 0"
+		{
+			"message" "关闭hud"
+		}
+	}
+	"地图选择"
+	{
+		"exec vote/Anne/Annenew.cfg"
+		{
+			"message" "zonemod版本"
+		}
+		"exec vote/Anne/Anneold.cfg"
+		{
+			"message" "AnneHappy原版"
+		}
+	}
+	"开关击杀音效"
+	{
+		"exec vote/sound_on.cfg"
+		{
+			"message" "开启音效"
+		}
+		"exec vote/sound_off.cfg"
+		{
+			"message" "关闭音效"
+		}
+	}
+	"开关击杀HUD"
+	{
+		"exec vote/killhud_on.cfg"
+		{
+			"message" "开启击杀HUD"
+		}
+		"exec vote/killhud_off.cfg"
+		{
+			"message" "关闭击杀HUD"
+		}
+	}
+	"开关击杀溶解尸体"
+	{
+		"exec vote/dissolve_on.cfg"
+		{
+			"message" "开启击杀溶解尸体"
+		}
+		"exec vote/dissolve_off.cfg"
+		{
+			"message" "关闭击杀溶解尸体"
+		}
+	}
+}

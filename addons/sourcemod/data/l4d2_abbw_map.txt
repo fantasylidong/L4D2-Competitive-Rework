@@ -1,0 +1,220 @@
+"第三方图数据"
+{
+	"1"
+	{
+		"中文名"		"绝境逢生"
+		"建图代码"		"cwm1_intro"
+	}
+	"2"
+	{
+		"中文名"		"白森林"
+		"建图代码"		"wfp1_track"
+	}
+	"3"
+	{
+		"中文名"		"喋血蜃楼"
+		"建图代码"		"l4d2_diescraper1_apartment_361"
+	}
+	"4"
+	{
+		"中文名"		"迂回前进"
+		"建图代码"		"cdta_01detour"
+	}
+	"5"
+	{
+		"中文名"		"颤栗森林"
+		"建图代码"		"hf01_theforest"
+	}
+	"6"
+	{
+		"中文名"		"死亡丛林"
+		"建图代码"		"l4d2_deathwoods01_stranded"
+	}
+	"7"
+	{
+		"中文名"		"FatalFreight"
+		"建图代码"		"l4d2_ff01_woods"
+	}
+
+	"8"
+	{
+		"中文名"		"绝命公路"
+		"建图代码"		"x1m1_cliffs"
+	}
+	"9"
+	{
+		"中文名"		"黎明"
+		"建图代码"		"l4d2_daybreak01_hotel"
+	}
+	"10"
+	{
+		"中文名"		"公路杀手"
+		"建图代码"		"grmap1"
+	}
+	"11"
+	{
+		"中文名"		"再见了晨茗"
+		"建图代码"		"msd1_town"
+	}
+	"12"
+	{
+		"中文名"		"dark carnival remix(C2改)"
+		"建图代码"		"dkr_m1_motel"
+	}
+	"13"
+	{
+		"中文名"		"闪电突袭2"
+		"建图代码"		"l4d2_stadium1_apartment"
+	}
+	"14"
+	{
+		"中文名"		"伦理问题"
+		"建图代码"		"qe_1_cliche"
+	}
+	"15"
+	{
+		"中文名"		"城市17"
+		"建图代码"		"l4d2_city17_01"
+	}
+	"16"
+	{
+		"中文名"		"返回学校"
+		"建图代码"		"l4d2_bts01_forest"
+	}
+	"17"
+	{
+		"中文名"		"downpour(C4改)"
+		"建图代码"		"dprm1_milltown_a"
+	}
+	"18"
+	{
+		"中文名"		"天堂可待2"
+		"建图代码"		"AirCrash"
+	}
+	"19"
+	{
+		"中文名"		"逃至山上"
+		"建图代码"		"rh_map01"
+	}
+	"20"
+	{
+		"中文名"		"黑暗教区"
+		"建图代码"		"c5m1_darkwaterfront"
+	}
+	"21"
+	{
+		"中文名"		"DeadBeforeDawnDC"
+		"建图代码"		"l4d_dbd2dc_anna_is_gone"
+	}
+	"22"
+	{
+		"中文名"		"2019"
+		"建图代码"		"2019_M1b"
+	}	
+	"23"
+	{
+		"中文名"		"ArenaOfTheDead2"
+		"建图代码"		"jsarena201_town"
+	}	
+	"24"
+	{
+		"中文名"		"BloodTracks"
+		"建图代码"		"bloodtracks_01"
+	}	
+	"25"
+	{
+		"中文名"		"BloodyMoors"
+		"建图代码"		"l4d_tbm_1"
+	}	
+	"26"
+	{
+		"中文名"		"CityOfTheDead"
+		"建图代码"		"cotd01_apartments"
+	}	
+	"27"
+	{
+		"中文名"		"DarkBlood2"
+		"建图代码"		"l4d2_darkblood01_tanker"
+	}	
+	"28"
+	{
+		"中文名"		"DeadbeatEscape"
+		"建图代码"		"deadbeat01_forest"
+	}	
+	"29"
+	{
+		"中文名"		"DeathSentence"
+		"建图代码"		"death_sentence_1"
+	}	
+	"30"
+	{
+		"中文名"		"DropDeadGorges"
+		"建图代码"		"ddg1_tower_v2_1"
+	}	
+	"31"
+	{
+		"中文名"		"EnergyCrisis"
+		"建图代码"		"ec01_outlets"
+	}
+	"32"
+	{
+		"中文名"		"FloodCenter"
+		"建图代码"		"c1m1_hotel_d_insane"
+	}
+	"33"
+	{
+		"中文名"		"HighwayToHell"
+		"建图代码"		"highway01_apt_20130613"
+	}
+	"34"
+	{
+		"中文名"		"IHateMountains2"
+		"建图代码"		"l4d_ihm01_forest"
+	}
+	"35"
+	{
+		"中文名"		"LeftBehind"
+		"建图代码"		"bhm1_outskirts"
+	}
+	"36"
+	{
+		"中文名"		"One4Nine"
+		"建图代码"		"l4d_149_1"
+	}
+	"37"
+	{
+		"中文名"		"Ravenholm"
+		"建图代码"		"l4d_ravenholm01_blackmesa"
+	}
+	"38"
+	{
+		"中文名"		"TourOfTerror"
+		"建图代码"		"eu01_residential_b16"
+	}
+	"39"
+	{
+		"中文名"		"UndeadZone"
+		"建图代码"		"uz_crash"
+	}
+	"40"
+	{
+		"中文名"		"UrbanFlight"
+		"建图代码"		"uf1_boulevard"
+	}
+	"41"
+	{
+		"中文名"		"Warcelona"
+		"建图代码"		"srocchurch"
+	}
+	"42"
+	{
+		"中文名"		"广州增城"
+		"建图代码"		"1_m1"
+	}
+	"43"
+	{
+		"中文名"		"万里"
+		"建图代码"		"l4d2_wanli01"
+	}
+
+}

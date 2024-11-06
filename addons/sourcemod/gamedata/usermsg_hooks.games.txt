@@ -1,0 +1,212 @@
+"Games"
+{
+	"#default"
+	{
+		"Offsets"
+		{
+			"OS"
+			{
+				"linux"			"1"
+				"windows"		"0"
+			}
+		}
+
+		"Addresses"
+		{
+			"UserMsg_0"
+			{
+				"signature"	"UserMsg_0"
+			}
+			"UserMsg_1"
+			{
+				"signature"	"UserMsg_1"
+			}
+			"UserMsg_2"
+			{
+				"signature"	"UserMsg_2"
+			}
+			"UserMsg_3"
+			{
+				"signature"	"UserMsg_3"
+			}
+			"UserMsg_4"
+			{
+				"signature"	"UserMsg_4"
+			}
+			"UserMsg_5"
+			{
+				"signature"	"UserMsg_5"
+			}
+			"UserMsg_6"
+			{
+				"signature"	"UserMsg_6"
+			}
+			"UserMsg_7"
+			{
+				"signature"	"UserMsg_7"
+			}
+			"UserMsg_8"
+			{
+				"signature"	"UserMsg_8"
+			}
+			"UserMsg_9"
+			{
+				"signature"	"UserMsg_9"
+			}
+			"UserMsg_10"
+			{
+				"signature"	"UserMsg_10"
+			}
+			"UserMsg_11"
+			{
+				"signature"	"UserMsg_11"
+			}
+			"UserMsg_12"
+			{
+				"signature"	"UserMsg_12"
+			}
+			"UserMsg_13"
+			{
+				"signature"	"UserMsg_13"
+			}
+			"UserMsg_14"
+			{
+				"signature"	"UserMsg_14"
+			}
+			"UserMsg_15"
+			{
+				"signature"	"UserMsg_15"
+			}
+			"UserMsg_16"
+			{
+				"signature"	"UserMsg_16"
+			}
+			"UserMsg_17"
+			{
+				"signature"	"UserMsg_17"
+			}
+			"UserMsg_18"
+			{
+				"signature"	"UserMsg_18"
+			}
+		}
+
+		"Signatures"
+		{
+			"UserMsg_0"
+			{
+				"library"		"server"
+				"linux"			"UserMessageBegin:  Unregistered message"
+				"windows"		"UserMessageBegin:  Unregistered message"
+			}
+			"UserMsg_1"
+			{
+				"library"		"server"
+				"linux"			"WriteAngle called with no active message\n"
+				"windows"		"WriteAngle called with no active message\n"
+			}
+			"UserMsg_2"
+			{
+				"library"		"server"
+				"linux"			"WriteBits called with no active message\n"
+				"windows"		"WriteBits called with no active message\n"
+			}
+			"UserMsg_3"
+			{
+				"library"		"server"
+				"linux"			"MessageWriteBitVecIntegral called with no active message\n"
+				"windows"		"MessageWriteBitVecIntegral called with no active message\n"
+			}
+			"UserMsg_4"
+			{
+				"library"		"server"
+				"linux"			"WriteBool called with no active message\n"
+				"windows"		"WriteBool called with no active message\n"
+			}
+			"UserMsg_5"
+			{
+				"library"		"server"
+				"linux"			"WriteCoord called with no active message\n"
+				"windows"		"WriteCoord called with no active message\n"
+			}
+			"UserMsg_6"
+			{
+				"library"		"server"
+				"linux"			"WriteEHandle called with no active message\n"
+				"windows"		"WriteEHandle called with no active message\n"
+			}
+			"UserMsg_7"
+			{
+				"library"		"server"
+				"linux"			"WriteEntity called with no active message\n"
+				"windows"		"WriteEntity called with no active message\n"
+			}
+			"UserMsg_8"
+			{
+				"library"		"server"
+				"linux"			"WriteFloat called with no active message\n"
+				"windows"		"WriteFloat called with no active message\n"
+			}
+			"UserMsg_9"
+			{
+				"library"		"server"
+				"linux"			"WriteLong called with no active message\n"
+				"windows"		"WriteLong called with no active message\n"
+			}
+			"UserMsg_10"
+			{
+				"library"		"server"
+				"linux"			"WriteSBitLong called with no active message\n"
+				"windows"		"WriteSBitLong called with no active message\n"
+			}
+			"UserMsg_11"
+			{
+				"library"		"server"
+				"linux"			"WriteString called with no active message\n"
+				"windows"		"WriteString called with no active message\n"
+			}
+			"UserMsg_12"
+			{
+				"library"		"server"
+				"linux"			"WriteUBitLong called with no active message\n"
+				"windows"		"WriteUBitLong called with no active message\n"
+			}
+			"UserMsg_13"
+			{
+				"library"		"server"
+				"linux"			"WriteVec3Coord called with no active message\n"
+				"windows"		"WriteVec3Coord called with no active message\n"
+			}
+			"UserMsg_14"
+			{
+				"library"		"server"
+				"linux"			"WriteVec3Normal called with no active message\n"
+				"windows"		"WriteVec3Normal called with no active message\n"
+			}
+			"UserMsg_15"
+			{
+				"library"		"server"
+				"linux"			"WRITE_BYTE called with no active message\n"
+				"windows"		"WRITE_BYTE called with no active message\n"
+			}
+			"UserMsg_16"
+			{
+				"library"		"server"
+				"linux"			"WRITE_CHAR called with no active message\n"
+				"windows"		"WRITE_CHAR called with no active message\n"
+			}
+			"UserMsg_17"
+			{
+				"library"		"server"
+				"linux"			"WRITE_SHORT called with no active message\n"
+				"windows"		"WRITE_SHORT called with no active message\n"
+			}
+			"UserMsg_18"
+			{
+				"library"		"server"
+				"linux"			"WRITE_WORD called with no active message\n"
+				"windows"		"WRITE_WORD called with no active message\n"
+			}
+		}
+	}
+}

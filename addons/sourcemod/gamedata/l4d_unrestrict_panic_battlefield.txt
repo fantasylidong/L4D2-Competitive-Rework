@@ -1,0 +1,93 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"MemPatches"
+		{
+			"ZombieManager::GetRandomPZSpawnPosition__skip_PanicEventActive"
+			{
+				"signature"		"ZombieManager::GetRandomPZSpawnPosition"
+				"linux"
+				{
+					"offset"	"26Ch"
+					"verify"	"\x0F\x85"
+					"patch"		"\x90\x90\x90\x90\x90\x90"
+				}
+				"windows"
+				{
+					"offset"	"4Bh"
+					"verify"	"\x74"
+					"patch"		"\xEB"
+				}
+			}
+
+			"ZombieManager::CollectSpawnAreas__skip_PanicEventActive"
+			{
+				"signature"		"ZombieManager::CollectSpawnAreas"
+				"linux"
+				{
+					"offset"	"562h"
+					"verify"	"\x74"
+					"patch"		"\xEB"
+				}
+				"windows"
+				{
+					"offset"	"442h"
+					"verify"	"\x74"
+					"patch"		"\xEB"
+				}
+			}
+
+			"ZombieManager::AccumulateSpawnAreaCollection__skip_PanicEventActive"
+			{
+				"signature"		"ZombieManager::AccumulateSpawnAreaCollection"
+				"linux"
+				{
+					"offset"	"6D9h"
+					"verify"	"\x0F\x85"
+					"patch"		"\x90\x90\x90\x90\x90\x90"
+				}
+				"windows"
+				{
+					"offset"	"19Bh"
+					"verify"	"\x74"
+					"patch"		"\xEB"
+				}
+			}
+		}
+
+		"Signatures"
+		{
+			// stolen from left4dhooks thanks to Silvers
+			/*
+			 *  ZombieManager::GetRandomPZSpawnPosition(ZombieManager *_ZombieManager, int zombieClass, int attempts, int a4, int a5)
+			*/
+			"ZombieManager::GetRandomPZSpawnPosition"
+			{
+				"library"		"server"
+				"linux"			"@_ZNK13ZombieManager24GetRandomPZSpawnPositionE15ZombieClassTypeiP13CTerrorPlayerP6Vector"
+				"windows"		"\x55\x8B\x2A\x83\x2A\x2A\x53\x57\x8B\x2A\x2A\x8B\x2A\x89\x2A\x2A\x85\x2A\x75\x2A\x5F\x32"
+				/* 55 8B ? 83 ? ? 53 57 8B ? ? 8B ? 89 ? ? 85 ? 75 ? 5F 32 */
+				/* Search "ZombieManager::GetRandomPZSpawnPosition" */
+			}
+
+			// Search string "ZombieManager::CollectSpawnAreas"
+			"ZombieManager::CollectSpawnAreas"
+			{
+				"library"		"server"
+				"linux"			"@_ZNK13ZombieManager17CollectSpawnAreasENS_15MobLocationTypeE15ZombieClassType"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x48\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\x33\xFF\x89\x7D\xEC\x89\x7D\xF0\x8B\xF1\x39\x78\x08\x74\x2A\x8B\x40\x08\x68\x2A\x2A\x2A\x2A\x8B\x50\x50\x68\x2A\x2A\x2A\x2A\x68\x2A\x2A\x2A\x2A\x68\x2A\x2A\x2A\x2A\x68\x1A\x07\x00\x00"
+								/* 55 8B EC 83 EC 48 A1 ? ? ? ? 53 56 57 33 FF 89 7D EC 89 7D F0 8B F1 39 78 08 74 ? 8B 40 08 68 ? ? ? ? 8B 50 50 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 68 1A 07 00 00 */
+			}
+
+			// Search string "ZombieManager::AccumulateSpawnAreaCollection"
+			"ZombieManager::AccumulateSpawnAreaCollection"
+			{
+				"library"		"server"
+				"linux"			"@_ZNK13ZombieManager29AccumulateSpawnAreaCollectionERK10CUtlVectorIP8CNavArea10CUtlMemoryIS2_iEENS_15MobLocationTypeE15ZombieClassTypefPS5_bb"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x48\xA1\x2A\x2A\x2A\x2A\x53\x56\x33\xF6\x89\x75\xDC"
+								/* 55 8B EC 83 EC 48 A1 ? ? ? ? 53 56 33 F6 89 75 DC */
+			}
+		}
+	}
+}

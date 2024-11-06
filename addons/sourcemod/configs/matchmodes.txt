@@ -1,5 +1,32 @@
 "MatchModes"
 {
+	"AnneHappy Configs"
+	{
+		"annehappy"
+		{
+			"name" "普通药役"
+		}
+		"hunters"
+		{
+			"name" "1vHT模式"
+		}
+		"alone"
+		{
+			"name" "单人装逼模式"
+		}
+		"witchparty"
+		{
+			"name" "女巫派对"
+		}
+		"allcharger"
+		{
+			"name" "牛牛冲刺大逃亡"
+		}
+		"annehappy_hardcore"
+		{
+			"name" "硬核药役模式"
+		}
+	}
 	"ZoneMod Configs"
 	{
 		"zonemod"

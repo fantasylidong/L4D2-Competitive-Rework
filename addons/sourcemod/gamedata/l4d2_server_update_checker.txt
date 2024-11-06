@@ -1,0 +1,45 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Addresses"
+		{
+			"SteamGameServer"
+			{
+				"linux"
+				{
+					"signature" "Steam3Server"
+					"read" "4"
+				}
+			}
+		}
+
+		"Functions"
+		{
+			"WasRestartRequested"
+			{
+				"offset"	"WasRestartRequested"
+				"hooktype"	"raw"
+				"this"		"ignore"
+				"return"	"bool"
+			}
+		}
+
+		"Offsets"
+		{
+			"WasRestartRequested"
+			{
+				"linux"		"11"
+			}
+		}
+
+		"Signatures"
+		{
+			"Steam3Server"
+			{
+				"library"	"engine"
+				"linux"		"@_ZL14s_Steam3Server"
+			}
+		}
+	}
+}

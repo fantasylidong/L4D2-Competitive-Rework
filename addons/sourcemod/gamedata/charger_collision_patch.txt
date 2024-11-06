@@ -1,0 +1,32 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Addresses"
+		{
+			"CCharge::HandleCustomCollision"
+			{
+				"signature"	"CCharge::HandleCustomCollision"
+			}
+		}
+		"Offsets"
+		{
+			"CCharge::HandleCustomCollision"
+			{
+				"linux"        "333" // was 327 //0x01
+				"windows"    "305" // was 297 //0x01 
+			}
+		}
+		"Signatures"
+		{
+			"CCharge::HandleCustomCollision"
+			{
+				/*Credit silvers sig*/
+				"library"		"server"
+				"linux"			"@_ZN7CCharge21HandleCustomCollisionEP11CBaseEntityRK6VectorS4_P10CGameTraceP9CMoveData"
+				"windows"		"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x33\x2A\x89\x2A\x2A\x8B\x2A\x2A\x53\x8B\x2A\x89\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x56\x8B"
+								/* ? ? ? ? ? ? ? ? ? ? ? ? ? ? 33 ? 89 ? ? 8B ? ? 53 8B ? 89 ? ? 8B ? ? ? ? ? 56 8B */
+			}
+		}
+	}
+}

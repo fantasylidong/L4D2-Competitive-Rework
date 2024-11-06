@@ -13,6 +13,8 @@
  */
 native void GiveClientGodFrames(int client, float time, int zclass);
 
+forward void L4D2_GodFrameRenderChange(int client);
+
 public SharedPlugin __pl_godframecontrol =
 {
 	name = "l4d2_godframes_control_merge",
