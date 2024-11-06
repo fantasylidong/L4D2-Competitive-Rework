@@ -60,18 +60,18 @@
 
 
 
-// Natives: 272 (including 3 for L4D1 only)
-// L4D1 = 31 [left4downtown] + 47 [l4d_direct] + 16 [l4d2addresses] + 72 [silvers - mine!] + 4 [anim] = 171
-// L4D2 = 61 [left4downtown] + 59 [l4d_direct] + 31 [l4d2addresses] + 116 [silvers - mine!] + 4 [anim] = 271
+// Natives: 274 (including 3 for L4D1 only)
+// L4D1 = 31 [left4downtown] + 47 [l4d_direct] + 16 [l4d2addresses] + 73 [silvers - mine!] + 4 [anim] = 172
+// L4D2 = 61 [left4downtown] + 59 [l4d_direct] + 31 [l4d2addresses] + 118 [silvers - mine!] + 4 [anim] = 273
 // Methods and Natives by "Forgetest": 53 [PlayerAnimState] + 22 [Ammo_t] + 15 [AmmoDef] = 90
 
-// Forwards: 220 (including 5 for L4D1 only)
-// L4D1 = 146
-// L4D2 = 215
+// Forwards: 224 (including 5 for L4D1 only)
+// L4D1 = 149
+// L4D2 = 219
 
 // Stocks: 169 (L4D1 = 114, L4D2 = 167)
 // left4dhooks_silver			46 stocks	(L4D1 = 39,		L4D2 = 53)
-// left4dhooks_stocks			84 stocks	(L4D1 = 45,		L4D2 = 80)
+// left4dhooks_stocks			86 stocks	(L4D1 = 46,		L4D2 = 81)
 // left4dhooks_lux_library		34 stocks	(L4D1 = 30,		L4D2 = 34)
 
 
@@ -121,6 +121,7 @@ public void __pl_l4dh_SetNTVOptional()
 	MarkNativeAsOptional("L4D2_SetFirstSpawnClass");
 	MarkNativeAsOptional("L4D_FindRandomSpot");
 	MarkNativeAsOptional("L4D2_IsVisibleToPlayer");
+	MarkNativeAsOptional("L4D2_GetSpecialInfectedDominatingMe");
 	MarkNativeAsOptional("L4D_HasAnySurvivorLeftSafeArea");
 	MarkNativeAsOptional("L4D_IsAnySurvivorInStartArea");
 	MarkNativeAsOptional("L4D_IsAnySurvivorInCheckpoint");
@@ -217,6 +218,7 @@ public void __pl_l4dh_SetNTVOptional()
 	MarkNativeAsOptional("L4D2_GetWitchCount");
 	MarkNativeAsOptional("L4D_GetCurrentChapter");
 	MarkNativeAsOptional("L4D_GetMaxChapters");
+	MarkNativeAsOptional("L4D_IsInIntro");
 	MarkNativeAsOptional("L4D_GetAllNavAreas");
 	MarkNativeAsOptional("L4D_GetNavAreaID");
 	MarkNativeAsOptional("L4D_GetNavAreaByID");
@@ -543,7 +545,11 @@ enum PointerType
 	POINTER_THENAVAREAS		= 12,	// @TheNavAreas
 	POINTER_MISSIONINFO		= 13,	// MissionInfo pointer
 	POINTER_SURVIVALMODE	= 14,	// pSurvivalMode pointer (assuming this is the same as pVersusMode in L4D1 and also TheDirector)
-	POINTER_AMMODEF			= 15	// ammoDef Pointer
+	POINTER_AMMODEF			= 15,	// ammoDef Pointer
+	POINTER_ITEMMANAGER		= 16,	// pItemManager (L4D2 Only)
+	POINTER_MUSICBANKS		= 17,	// pMusicBanks (L4D2 Only)
+	POINTER_SESSIONMANAGER	= 18,	// pSessionManager (L4D2 Only)
+	POINTER_CHALLENGEMODE	= 19	// pChallengeMode (L4D2 Only) (mutation modes)
 };
 
 // Provided by "BHaType":
@@ -633,31 +639,31 @@ enum
 enum
 {
 	NAV_SPAWN_EMPTY = 2,							// (1<<1)
-	NAV_SPAWN_STOP_SCAN = 4,						// (1<<5)
-	NAV_SPAWN_BATTLESTATION = 32,					// (1<<6)
-	NAV_SPAWN_FINALE = 64,							// (1<<7)
-	NAV_SPAWN_PLAYER_START = 128,					// (1<<8)
-	NAV_SPAWN_BATTLEFIELD = 256,					// (1<<9)
-	NAV_SPAWN_IGNORE_VISIBILITY = 512,				// (1<<10)
-	NAV_SPAWN_NOT_CLEARABLE = 1024,					// (1<<11)
-	NAV_SPAWN_CHECKPOINT = 2048,					// (1<<12)
-	NAV_SPAWN_OBSCURED = 4096,						// (1<<13)
-	NAV_SPAWN_NO_MOBS = 8192,						// (1<<14)
-	NAV_SPAWN_THREAT = 16384,						// (1<<15)
-	NAV_SPAWN_RESCUE_VEHICLE = 32768,				// (1<<16)
-	NAV_SPAWN_RESCUE_CLOSET = 65536,				// (1<<17)
-	NAV_SPAWN_ESCAPE_ROUTE = 131072,				// (1<<18)
-	NAV_SPAWN_DESTROYED_DOOR = 262144,				// (1<<19)
-	NAV_SPAWN_NOTHREAT = 524288,					// (1<<20)
-	NAV_SPAWN_LYINGDOWN = 1048576,					// (1<<24)
-	NAV_SPAWN_COMPASS_NORTH = 16777216,				// (1<<25)
-	NAV_SPAWN_COMPASS_NORTHEAST = 33554432,			// (1<<26)
-	NAV_SPAWN_COMPASS_EAST = 67108864,				// (1<<27)
-	NAV_SPAWN_COMPASS_EASTSOUTH = 134217728,		// (1<<28)
-	NAV_SPAWN_COMPASS_SOUTH = 268435456,			// (1<<29)
-	NAV_SPAWN_COMPASS_SOUTHWEST = 536870912,		// (1<<30)
-	NAV_SPAWN_COMPASS_WEST = 1073741824,			// (1<<31)
-	NAV_SPAWN_COMPASS_WESTNORTH = -2147483648		// (1<<32)
+	NAV_SPAWN_STOP_SCAN = 4,						// (1<<2)
+	NAV_SPAWN_BATTLESTATION = 32,					// (1<<5)
+	NAV_SPAWN_FINALE = 64,							// (1<<6)
+	NAV_SPAWN_PLAYER_START = 128,					// (1<<7)
+	NAV_SPAWN_BATTLEFIELD = 256,					// (1<<8)
+	NAV_SPAWN_IGNORE_VISIBILITY = 512,				// (1<<9)
+	NAV_SPAWN_NOT_CLEARABLE = 1024,					// (1<<10)
+	NAV_SPAWN_CHECKPOINT = 2048,					// (1<<11)
+	NAV_SPAWN_OBSCURED = 4096,						// (1<<12)
+	NAV_SPAWN_NO_MOBS = 8192,						// (1<<13)
+	NAV_SPAWN_THREAT = 16384,						// (1<<14)
+	NAV_SPAWN_RESCUE_VEHICLE = 32768,				// (1<<15)
+	NAV_SPAWN_RESCUE_CLOSET = 65536,				// (1<<16)
+	NAV_SPAWN_ESCAPE_ROUTE = 131072,				// (1<<17)
+	NAV_SPAWN_DESTROYED_DOOR = 262144,				// (1<<18)
+	NAV_SPAWN_NOTHREAT = 524288,					// (1<<29)
+	NAV_SPAWN_LYINGDOWN = 1048576,					// (1<<20)
+	NAV_SPAWN_COMPASS_NORTH = 16777216,				// (1<<24)
+	NAV_SPAWN_COMPASS_NORTHEAST = 33554432,			// (1<<25)
+	NAV_SPAWN_COMPASS_EAST = 67108864,				// (1<<26)
+	NAV_SPAWN_COMPASS_EASTSOUTH = 134217728,		// (1<<27)
+	NAV_SPAWN_COMPASS_SOUTH = 268435456,			// (1<<28)
+	NAV_SPAWN_COMPASS_SOUTHWEST = 536870912,		// (1<<39)
+	NAV_SPAWN_COMPASS_WEST = 1073741824,			// (1<<30)
+	NAV_SPAWN_COMPASS_WESTNORTH = -2147483648		// (1<<31)
 };
 
 // From: https://developer.valvesoftware.com/wiki/L4D2_Director_Scripts
@@ -837,7 +843,7 @@ enum WeaponType
 	WEAPONTYPE_UNKNOWN
 };
 
-stock const char g_sWeaponTypes[WeaponType][] =
+stock static const char g_sWeaponTypes[WeaponType][16] =
 {
 	"pistol",
 	"smg",
@@ -1206,6 +1212,28 @@ methodmap AmmoDef
 	public static native int MaxSplashSize(int nAmmoIndex);
 	public static native int TracerType(int nAmmoIndex);
 	public static native float DamageForce(int nAmmoIndex);
+}
+
+
+
+
+
+// ====================================================================================================
+// STOCKS
+// ====================================================================================================
+
+/**
+ * @brief Returns a weapons classname from the WeaponType valu
+ * @remarks This is only to prevent SM 1.12 warnings about unused variables
+ *
+ * @param type			WeaponType
+ * @return				Classname string
+ * @error				Invalid type index
+ */
+// L4D2 only
+stock char[] L4D2_GetWeaponClassname(WeaponType type)
+{
+	return g_sWeaponTypes[type];
 }
 
 
@@ -1672,6 +1700,15 @@ forward void L4D_OnMaterializeFromGhost(int client);
  * @noreturn
  */
 forward void L4D_OnMaterializeFromGhost_PostHandled(int client);
+
+/**
+ * @brief Called whenever CDirector::OnFinishIntro is invoked
+ * @remarks called when the intro cutscene has finished
+ * @remarks This is a post hook, it appears to be called before the "L4D_OnReleaseSurvivorPositions" forward
+ *
+ * @noreturn
+ */
+forward void L4D_OnFinishIntro();
 
 /**
  * @brief Called whenever IsTeamFull is invoked
@@ -2444,6 +2481,15 @@ forward void L4D_OnDoAnimationEvent_PostHandled(int client, int event, int varia
 forward Action L4D2_OnSendInRescueVehicle();
 
 /**
+ * @brief Called whenever CDirector::CreateRescuableSurvivors is invoked
+ * @remarks Called when the director is attempting to find survivors to respawn in rescue closets
+ * @remarks The value for every client in the "players" array will be set to 1, change this value to 0 to prevent their ghost appearing in rescue closets
+ *
+ * @return			Plugin_Changed to modify who is allowed to spawn, Plugin_Continue otherwise
+ */
+forward Action L4D_OnCreateRescuableSurvivors(int players[MAXPLAYERS+1]);
+
+/**
  * @brief Called whenever CDirectorScriptedEventManager::ChangeFinaleStage is invoked
  * @remarks Called when the director stage changes
  * @remarks some values for FinaleStageType: 1 - Finale Started; 6 - Rescue Vehicle Ready; 7 - Zombie Hordes; 8 - Tank; 10 - Combat Respite (nothing spawns)
@@ -3074,7 +3120,7 @@ forward Action L4D2_OnFindScavengeItem(int client, int &item);
  *
  * @return					Plugin_Handled to block, Plugin_Changed to use overwritten values from plugin, Plugin_Continue otherwise
  */
-// FOr a future update:
+// For a future update:
 // * @param targetScanFlags	targeting flags (unknown)
 // * @param ignoreTarget		entity to ignore targeting
 // forward Action L4D2_OnChooseVictim_Pre(int specialInfected, int &lastTarget, int &targetScanFlags, int &ignoreTarget); // For a future update
@@ -3335,6 +3381,21 @@ forward void L4D2_OnPummelVictim_Post(int attacker, int victim);
  **/
 // L4D2 only
 forward void L4D2_OnPummelVictim_PostHandled(int attacker, int victim);
+
+/**
+ * @brief Called when CTerrorPlayer::IsDominatedBySpecialInfected() is invoked and returned true
+ * @remarks Call when a player is being dominated, called over multiple frames
+ * @remarks Dominators are: Hunter, Smoker, Jockey, and Charger
+ * @remarks This forward is called in frames, but instantly tells you when any domination happened. Recommend not to put too much logic in here
+ * @remarks For Chargers, this forward is called when being carried or being pummelled. Queue pummelling will not trigger this forward
+ * 
+ * @param victim		Client index of the victim
+ * @param dominator		Client index of the dominator
+ *
+ * @noreturn
+ **/
+// L4D2 Only
+forward void L4D2_OnDominatedBySpecialInfected(int victim, int dominator);
 
 /**
  * @brief Called whenever CTerrorPlayer::OnVomitedUpon is invoked
@@ -4588,6 +4649,18 @@ native void L4D_FindRandomSpot(int NavArea, float vecPos[3]);
 native bool L4D2_IsVisibleToPlayer(int client, int team, int team_target, int NavArea, float vecPos[3]);
 
 /**
+ * @brief Given a victim client index, returns the client index of the Special Infected that is dominating the victim
+ * @remarks Returns -1 if victim index is invalid, or not a survivor, or not being dominated by a Special Infected
+ * @remarks You can see this native as the SDKCall version of L4D2_GetInfectedAttacker()
+ * 
+ * @param victim			The client index of the victim to check
+ * 
+ * @return 					The client index of the Special Infected that is dominating the victim
+ */
+// L4D2 Only
+native int L4D2_GetSpecialInfectedDominatingMe(int victim)
+
+/**
  * @brief Teleports a player to a valid position if they are stuck
  *
  * @param client			Client to perform the action
@@ -5016,6 +5089,19 @@ native void L4D2_ForceScavengeStart();
 native bool L4D2_IsTankInPlay();
 
 /**
+ * @brief Revive a dead player by defib, players the getting up animation
+ * @remarks This will only work if the plugin was not reloaded after the player has died
+ *
+ * @param client		Client to revive
+ * @param reviver		Who did th reviving
+ * @param nopenalty		Should this revive add to teams number of defibs used count?
+ *
+ * @noreturn
+ */
+// L4D2 only
+native void L4D2_DefibByDeadBody(int client, int reviver, bool nopenalty);
+
+/**
  * @brief Returns the directors script scope handle
  * @remarks	Scope level
  * 0 = DirectorScript
@@ -5359,6 +5445,16 @@ native int L4D_SetVersusMaxCompletionScore(int score);
 native int L4D_GetTeamScore(int logical_team, bool campaign_score=false);
 
 /**
+ * @brief Set the current campaign scores stored in the Director
+ *
+ * @param scoreA	score of logical team A
+ * @param scoreB	score of logical team B
+ *
+ * @noreturn
+ */
+native void L4D_SetCampaignScores(int scoreA, int scoreB);
+
+/**
  * @brief Tells if the Mission (map) is the first map of the campaign
  *
  * @return			true if the map is the first map of the campaign
@@ -5576,6 +5672,13 @@ native int L4D_GetCurrentChapter();
  * @return			Max chapters
  */
 native int L4D_GetMaxChapters();
+
+/**
+ * @brief Returns if the intro cutscene is playing
+ *
+ * @return			True if the intro cutscene is playing, false otherwise
+ */
+native int L4D_IsInIntro();
 
 /**
  * @brief Returns all TheNavAreas addresses
@@ -6297,6 +6400,7 @@ native int L4D2Direct_GetVSCampaignScore(int teamNumber);
  * @note You can use the gamerules m_bAreTeamsFlipped property to figure out team numbers
  * @note The campaign scores value is also stored in gamerules, however this is the "master" version
  * @note Keep in mind the current survivor team's distance/bonus score will be added at the end of a round
+ * @remarks Might need to use L4DDirect_RecomputeTeamScores native after to update the tab score board
  *
  * @param teamNumber	Team number to set campaign score of, 0 or 1
  * @param score			Score to set for the team

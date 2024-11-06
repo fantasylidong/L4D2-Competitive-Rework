@@ -18,7 +18,7 @@
 
 
 
-#define PLUGIN_VERSION		"1.144"
+#define PLUGIN_VERSION		"1.154"
 
 /*=======================================================================================
 	Plugin Info:
@@ -342,6 +342,7 @@ stock Action TimerCancelStagger(Handle timer, int client)
 		L4D_CancelStagger(client);
 	}
 
+	if( timer ) timer = null; // Fix SM 1.12 warnings about unused variables -_-
 	return Plugin_Continue;
 }
 
@@ -352,6 +353,70 @@ Action sm_l4dd(int client, int args)
 		Uncomment the things you want to test. All disabled by default.
 		Must test individual sections on their own otherwise you'll receive errors about symbols already defined..
 	*/
+
+
+
+	// WORKS
+	/*
+	int target = GetRandomSurvivor(0, 1);
+	if( target )
+	{
+		PrintToServer("L4D2_DefibByDeadBody: REVIVING: %d %N", target, target);
+		L4D2_DefibByDeadBody(target, target, false);
+	}
+	else
+	{
+		PrintToServer("L4D2_DefibByDeadBody: NO TARGET TO REVIVE");
+	}
+	// */
+
+
+
+	// WORKS
+	/*
+	PrintToServer("POINTER_ITEMMANAGER = %d",		L4D_GetPointer(POINTER_ITEMMANAGER));
+	PrintToServer("POINTER_MUSICBANKS = %d",		L4D_GetPointer(POINTER_MUSICBANKS));
+	PrintToServer("POINTER_SESSIONMANAGER = %d",	L4D_GetPointer(POINTER_SESSIONMANAGER));
+	PrintToServer("POINTER_CHALLENGEMODE = %d",		L4D_GetPointer(POINTER_CHALLENGEMODE));
+	// */
+
+
+
+	/*
+	PrintToServer("L4D_GetTeamScore A Map: %d",					L4D_GetTeamScore(1, false)); //WORKING
+	PrintToServer("L4D_GetTeamScore B Map: %d",					L4D_GetTeamScore(2, false)); //WORKING
+	PrintToServer("L4D_GetTeamScore A Camp: %d",				L4D_GetTeamScore(1, true)); //WORKING
+	PrintToServer("L4D_GetTeamScore B Camp: %d",				L4D_GetTeamScore(2, true)); //WORKING
+
+
+
+	int scores[2];
+	L4D2_GetVersusCampaignScores(scores);
+	PrintToServer("L4D2_GetVersusCampaignScores %d %d",			scores[0], scores[1]);
+
+	// scores[0] = 314;
+	// scores[1] = 456;
+	// L4D2_SetVersusCampaignScores(scores);
+
+
+
+	PrintToServer("Direct_GetVSCampaignScore %d",				L4D2Direct_GetVSCampaignScore(0));
+	PrintToServer("Direct_GetVSCampaignScore %d",				L4D2Direct_GetVSCampaignScore(1));
+	// L4D2Direct_SetVSCampaignScore(0, 100);
+	// L4D2Direct_SetVSCampaignScore(1, 200);
+	// L4DDirect_RecomputeTeamScores(); // Must call this after L4D2Direct_SetVSCampaignScore to update the tab score board
+
+
+
+	PrintToServer("L4D_GetVersusMaxCompletionScore %d",			L4D_GetVersusMaxCompletionScore());
+	// L4D_SetVersusMaxCompletionScore(800); // WORKING - DOESN'T SHOW ON TAB SCORE BOARD
+	// */
+
+
+
+
+
+	// PrintToServer("L4D_IsInIntro %d", L4D_IsInIntro()); //WORKING
 
 
 
@@ -1310,6 +1375,11 @@ Action sm_l4dd(int client, int args)
 	PrintToServer("POINTER_VERSUSMODE = %d",		L4D_GetPointer(POINTER_VERSUSMODE));
 	PrintToServer("POINTER_MISSIONINFO = %d",		L4D_GetPointer(POINTER_MISSIONINFO));
 	PrintToServer("POINTER_SURVIVALMODE = %d",		L4D_GetPointer(POINTER_SURVIVALMODE));
+	PrintToServer("POINTER_AMMODEF = %d",			L4D_GetPointer(POINTER_AMMODEF));
+	PrintToServer("POINTER_ITEMMANAGER = %d",		L4D_GetPointer(POINTER_ITEMMANAGER));
+	PrintToServer("POINTER_MUSICBANKS = %d",		L4D_GetPointer(POINTER_MUSICBANKS));
+	PrintToServer("POINTER_SESSIONMANAGER = %d",	L4D_GetPointer(POINTER_SESSIONMANAGER));
+	PrintToServer("POINTER_CHALLENGEMODE = %d",		L4D_GetPointer(POINTER_CHALLENGEMODE));
 
 	// TEST: L4D_GetClientFromAddress + L4D_GetEntityFromAddress
 	int target = GetAnyRandomClient();
@@ -1926,7 +1996,7 @@ Action sm_l4dd(int client, int args)
 
 	if( g_bLeft4Dead2 )
 	{
-		// Test attribute tag mis-match
+		// Test attribute tag mismatch
 		// PrintToServer("L4D2_GetIntWeaponAttribute_DD: %d",		L4D2_GetIntWeaponAttribute("weapon_smg", L4D2FWA_MaxPlayerSpeed));
 
 		int scores[2];
@@ -2227,6 +2297,19 @@ Action sm_l4dd(int client, int args)
 	// Client specific, spawning and stuff that changes the mission.
 	// =========================
 	/*
+	// To spawn and teleport the tank to the previous tanks position:
+	float vAng[3], vOld[3], vNew[3];
+	GetClientEyeAngles(oldtank, vAng);
+	GetClientEyePosition(oldtank, vOld);
+	GetClientAbsOrigin(newtank, vNew);
+	PrintToServer("L4D_ReplaceTank %d",									L4D_ReplaceTank(tank, newtank)); // WORKS
+	TeleportEntity(oldtank, vOld, vAng, NULL_VECTOR);
+	TeleportEntity(newtank, vNew, NULL_VECTOR, NULL_VECTOR);
+	*/
+
+
+
+	/*
 	float vPos[3];
 	float vAng[3];
 
@@ -2254,10 +2337,6 @@ Action sm_l4dd(int client, int args)
 
 	GetClientAbsOrigin(client, vPos);
 	GetClientAbsAngles(client, vAng);
-
-
-
-	// PrintToServer("L4D_ReplaceTank %d",									L4D_ReplaceTank(tank, newtank)); // WORKS
 
 
 
@@ -2385,6 +2464,7 @@ stock Action TimerDetonate(Handle timer, int entity)
 		L4D_DetonateProjectile(entity);
 	}
 
+	if( timer ) timer = null; // Fix SM 1.12 warnings about unused variables -_-
 	return Plugin_Continue;
 }
 
@@ -2402,10 +2482,11 @@ stock Action TimerDetonateVomitjar(Handle timer, int entity)
 		TeleportEntity(entity, vPos, NULL_VECTOR, view_as<float>({ 0.0, 0.0, -1.0}));
 	}
 
+	if( timer ) timer = null; // Fix SM 1.12 warnings about unused variables -_-
 	return Plugin_Continue;
 }
 
-void GetGroundAngles(float vOrigin[3])
+stock void GetGroundAngles(float vOrigin[3])
 {
 	float vAng[3], vLookAt[3], vTargetOrigin[3];
 
@@ -2810,6 +2891,18 @@ public void L4D_OnTakeOverBot_PostHandled(int client, bool success)
 		called++;
 
 		ForwardCalled("\"L4D_OnTakeOverBot_PostHandled\" %d (%N). Success: %d", client, client, success);
+	}
+}
+
+public void L4D_OnFinishIntro()
+{
+	static int called;
+	if( called < MAX_CALLS )
+	{
+		if( called == 0 ) g_iForwards++;
+		called++;
+
+		ForwardCalled("\"L4D_OnFinishIntro\"");
 	}
 }
 
@@ -3489,6 +3582,25 @@ public Action L4D2_OnSendInRescueVehicle()
 	return Plugin_Continue;
 }
 
+public Action L4D_OnCreateRescuableSurvivors(int players[MAXPLAYERS+1])
+{
+	bool block;
+
+	for( int i = 1; i <= MaxClients; i++ )
+	{
+		if( i <= 3 ) // Players index 3 or less, for testing
+		{
+			block = true;
+			players[i] = 1; // Block player from spawning in rescue closets
+		}
+	}
+
+	// WORKS
+	if( block )
+		return Plugin_Changed;
+	return Plugin_Continue;
+}
+
 public Action L4D2_OnEndVersusModeRound(bool countSurvivors)
 {
 	static int called;
@@ -3851,6 +3963,19 @@ public Action L4D2_OnFindScavengeItem(int client, int &item)
 
 	return Plugin_Continue;
 }
+
+public void L4D2_OnDominatedBySpecialInfected(int victim, int dominator)
+{
+	static int called;
+	if( called < MAX_CALLS )
+	{
+		if( called == 0 ) g_iForwards++;
+		called++;
+
+		ForwardCalled("\"L4D2_OnDominatedBySpecialInfected\" %d (%N) dominating %d (%N)", dominator, dominator, victim, victim);
+	}
+}
+
 
 public Action L4D_OnPouncedOnSurvivor(int victim, int attacker)
 {
@@ -4674,7 +4799,9 @@ public Action L4D1_FirstAidKit_StartHealing(int client, int entity)
 		called++;
 
 		// Better to use FindConVar in plugin start, hook the convar for change and store the value in a variable, this is just an example:
-		float range = FindConVar("player_use_radius").FloatValue;
+		float range;
+		if( g_bLeft4Dead2 ) range = FindConVar("player_use_radius").FloatValue;
+		else range = 96.0; // L4D1 doesn't have this cvar, maybe another, don't know name
 
 		int target = L4D_FindUseEntity(client, true, range); // "m_healTarget" is not set at this point, must call this native if you wish to identify the target before healing
 		if( target < 0 || target > MaxClients ) target = 0;
@@ -5719,6 +5846,7 @@ stock Action TimerOnPummelResetAnim(Handle timer, int victim) // Don't need clie
 {
 	AnimHookDisable(victim, OnPummelOnAnimPre);
 
+	if( timer ) timer = null; // Fix SM 1.12 warnings about unused variables -_-
 	return Plugin_Continue;
 }
 
@@ -6118,5 +6246,7 @@ stock bool TraceFilter(int entity, int contentsMask, int client)
 {
 	if( entity == client )
 		return false;
+
+	if( contentsMask ) contentsMask = 0; // Fix SM 1.12 warnings about unused variables -_-
 	return true;
 }

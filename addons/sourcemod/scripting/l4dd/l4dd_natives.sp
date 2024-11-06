@@ -69,6 +69,7 @@ Handle g_hSDK_ForceVersusStart;
 Handle g_hSDK_ForceSurvivalStart;
 Handle g_hSDK_ForceScavengeStart;
 Handle g_hSDK_CDirector_IsTankInPlay;
+Handle g_hSDK_CTDefibPlayer;
 Handle g_hSDK_CDirector_GetFurthestSurvivorFlow;
 Handle g_hSDK_CDirector_GetScriptValueInt;
 Handle g_hSDK_CDirector_GetScriptValueFloat;
@@ -79,6 +80,7 @@ Handle g_hSDK_CNavMesh_GetNearestNavArea;
 Handle g_hSDK_TerrorNavArea_FindRandomSpot;
 Handle g_hSDK_CTerrorPlayer_WarpToValidPositionIfStuck;
 Handle g_hSDK_IsVisibleToPlayer;
+Handle g_hSDK_CTerrorPlayer_GetSpecialInfectedDominatingMe;
 Handle g_hSDK_CDirector_HasAnySurvivorLeftSafeArea;
 Handle g_hSDK_CBaseTrigger_IsTouching;
 // Handle g_hSDK_CDirector_IsAnySurvivorInExitCheckpoint;
@@ -95,6 +97,7 @@ Handle g_hSDK_KeyValues_GetString;
 
 // left4downtown.inc
 Handle g_hSDK_CTerrorGameRules_GetTeamScore;
+Handle g_hSDK_CTerrorGameRules_SetCampaignScores;
 Handle g_hSDK_CDirector_RestartScenarioFromVote;
 Handle g_hSDK_CDirector_IsFirstMapInScenario;
 Handle g_hSDK_CTerrorGameRules_IsMissionFinalMap;
@@ -284,6 +287,10 @@ any Native_GetPointer(Handle plugin, int numParams) // Native "L4D_GetPointer"
 		case POINTER_MISSIONINFO:		return SDKCall(g_hSDK_CTerrorGameRules_GetMissionInfo);
 		case POINTER_SURVIVALMODE:		return g_pSurvivalMode;
 		case POINTER_AMMODEF:			return g_pAmmoDef;
+		case POINTER_ITEMMANAGER:		return g_pItemManager;
+		case POINTER_MUSICBANKS:		return g_pMusicBanks;
+		case POINTER_SESSIONMANAGER:	return g_pSessionManager;
+		case POINTER_CHALLENGEMODE:		return g_pChallengeMode;
 	}
 
 	return 0;
@@ -544,6 +551,41 @@ int Native_VS_ReviveByDefib(Handle plugin, int numParams) // Native "L4D2_VScrip
 
 	// Exec
 	return ExecVScriptCode(code);
+}
+
+#define DEATH_MODEL_CLASS "survivor_death_model"
+
+int Native_DefibDeadBody(Handle plugin, int numParams) // Native "L4D2_DefibByDeadBody"
+{
+	if( !g_bLeft4Dead2 ) ThrowNativeError(SP_ERROR_NOT_RUNNABLE, NATIVE_UNSUPPORTED2);
+
+	// Detect Clients
+	int client = GetNativeCell(1);
+	int model = g_iClientDeathModel[client];
+	if( model && (EntRefToEntIndex(model) != INVALID_ENT_REFERENCE) )
+	{
+		bool nopenalty = GetNativeCell(3);
+
+		int quantity1;
+		int quantity2;
+
+		if( nopenalty )
+		{
+			quantity1 = GameRules_GetProp("m_iVersusDefibsUsed", 4, 0);
+			quantity2 = GameRules_GetProp("m_iVersusDefibsUsed", 4, 1);
+		}
+
+		int reviver = GetNativeCell(2);
+		SDKCall(g_hSDK_CTDefibPlayer, client, reviver, model);
+
+		if( nopenalty )
+		{
+			GameRules_SetProp("m_iVersusDefibsUsed", quantity1, 4, 0);
+			GameRules_SetProp("m_iVersusDefibsUsed", quantity2, 4, 1); 
+		}
+	}
+
+	return 0;
 }
 
 int Native_VS_ReviveFromIncap(Handle plugin, int numParams) // Native "L4D2_VScriptWrapper_ReviveFromIncap"
@@ -1116,6 +1158,16 @@ int Native_CTerrorPlayer_WarpToValidPositionIfStuck(Handle plugin, int numParams
 	SDKCall(g_hSDK_CTerrorPlayer_WarpToValidPositionIfStuck, client);
 
 	return 0;
+}
+
+int Native_CTerrorPlayer_GetSpecialInfectedDominatingMe(Handle plugin, int numParams) // Native "L4D2_GetSpecialInfectedDominatingMe"
+{
+	ValidateNatives(g_hSDK_CTerrorPlayer_GetSpecialInfectedDominatingMe, "CTerrorPlayer::GetSpecialInfectedDominatingMe");
+
+	int client = GetNativeCell(1);
+
+	//PrintToServer("#### CALL g_hSDK_CTerrorPlayer_GetSpecialInfectedDominatingMe");
+	return SDKCall(g_hSDK_CTerrorPlayer_GetSpecialInfectedDominatingMe, client);
 }
 
 int Native_IsVisibleToPlayer(Handle plugin, int numParams) // Native "L4D2_IsVisibleToPlayer"
@@ -1722,6 +1774,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 		// Make the tank rock fully visible, otherwise it's semi-transparent (during pickup animation of Tank Rock).
 		SetEntityRenderColor(entity, 255, 255, 255, 255);
+	}
+	else if( g_bLeft4Dead2 && strcmp(classname, "survivor_death_model") == 0 )
+	{
+		g_iDeathModel = EntIndexToEntRef(entity);
 	}
 }
 
@@ -2569,6 +2625,19 @@ int Native_CTerrorGameRules_GetTeamScore(Handle plugin, int numParams) // Native
 	return SDKCall(g_hSDK_CTerrorGameRules_GetTeamScore, team, score);
 }
 
+int Native_CTerrorGameRules_SetCampaignScores(Handle plugin, int numParams) // Native "L4D_SetCampaignScores"
+{
+	ValidateNatives(g_hSDK_CTerrorGameRules_SetCampaignScores, "CTerrorGameRules::SetCampaignScores");
+
+	int surv_score = GetNativeCell(1);
+	int inf_score = GetNativeCell(2);
+
+	//PrintToServer("#### CALL g_hSDK_CTerrorGameRules_SetCampaignScores");
+	SDKCall(g_hSDK_CTerrorGameRules_SetCampaignScores, surv_score, inf_score);
+
+	return 0;
+}
+
 int Native_CDirector_IsFirstMapInScenario(Handle plugin, int numParams) // Native "L4D_IsFirstMapInScenario"
 {
 	ValidateNatives(g_hSDK_CDirector_IsFirstMapInScenario, "CDirector::IsFirstMapInScenario");
@@ -2691,6 +2760,8 @@ int Native_CTerrorPlayer_OnStaggered(Handle plugin, int numParams) // Native "L4
 	{
 		GetNativeArray(3, vDir, sizeof(vDir));
 	}
+
+	g_iCancelStagger[a1] = 0;
 
 	//PrintToServer("#### CALL g_hSDK_CTerrorPlayer_OnStaggered");
 	SDKCall(g_hSDK_CTerrorPlayer_OnStaggered, a1, a2, vDir);
@@ -3696,6 +3767,19 @@ int Native_CTerrorGameRules_GetNumChaptersForMissionAndMode(Handle plugin, int n
 	return 0;
 }
 
+int Native_CTerrorGameRules_IsInIntro(Handle plugin, int numParams) // Native "L4D_IsInIntro"
+{
+	if( g_bLeft4Dead2 )
+	{
+		return GameRules_GetProp("m_bInIntro");
+	}
+	else
+	{
+		ValidateAddress(g_iOff_m_bInIntro, "g_iOff_m_bInIntro");
+		return LoadFromAddress(g_pDirector + view_as<Address>(g_iOff_m_bInIntro + 4), NumberType_Int8);
+	}
+}
+
 int Native_CDirector_IsFinaleEscapeInProgress(Handle plugin, int numParams) // Native "L4D_IsFinaleEscapeInProgress"
 {
 	ValidateNatives(g_hSDK_CDirector_IsFinaleEscapeInProgress, "CDirector::IsFinaleEscapeInProgress");
@@ -3774,13 +3858,13 @@ int Native_GetVersusCampaignScores(Handle plugin, int numParams) // Native "L4D2
 {
 	if( !g_bLeft4Dead2 ) ThrowNativeError(SP_ERROR_NOT_RUNNABLE, NATIVE_UNSUPPORTED2);
 
-	ValidateAddress(g_pVersusMode, "VersusModePtr");
-	ValidateAddress(g_pVersusMode, "m_iCampaignScores");
+	ValidateAddress(g_pGameRules, "GameRules");
+	ValidateAddress(g_iOff_m_iCampaignScores2, "m_iCampaignScores2");
 
 	int vals[2];
-	vals[0] = LoadFromAddress(view_as<Address>(g_pVersusMode + g_iOff_m_iCampaignScores), NumberType_Int32);
-	vals[1] = LoadFromAddress(view_as<Address>(g_pVersusMode + g_iOff_m_iCampaignScores + 4), NumberType_Int32);
-	SetNativeArray(1, vals, 2);
+	vals[0] = LoadFromAddress(g_pGameRules + view_as<Address>(g_iOff_m_iCampaignScores2), NumberType_Int32);
+	vals[1] = LoadFromAddress(g_pGameRules + view_as<Address>(g_iOff_m_iCampaignScores2 + 4), NumberType_Int32);
+	SetNativeArray(1, vals, sizeof(vals));
 
 	return 0;
 }
@@ -3790,12 +3874,18 @@ int Native_SetVersusCampaignScores(Handle plugin, int numParams) // Native "L4D2
 	if( !g_bLeft4Dead2 ) ThrowNativeError(SP_ERROR_NOT_RUNNABLE, NATIVE_UNSUPPORTED2);
 
 	ValidateAddress(g_pVersusMode, "VersusModePtr");
-	ValidateAddress(g_pVersusMode, "m_iCampaignScores");
+	ValidateAddress(g_iOff_m_iCampaignScores, "m_iCampaignScores");
+	ValidateNatives(g_hSDK_CTerrorGameRules_SetCampaignScores, "CTerrorGameRules::SetCampaignScores");
 
 	int vals[2];
 	GetNativeArray(1, vals, sizeof(vals));
+
+	// Update real scores
 	StoreToAddress(view_as<Address>(g_pVersusMode + g_iOff_m_iCampaignScores), vals[0], NumberType_Int32, false);
 	StoreToAddress(view_as<Address>(g_pVersusMode + g_iOff_m_iCampaignScores + 4), vals[1], NumberType_Int32, false);
+
+	// Update on tab scoreboard
+	SDKCall(g_hSDK_CTerrorGameRules_SetCampaignScores, vals[0], vals[1]);
 
 	return 0;
 }
@@ -3942,25 +4032,33 @@ int Direct_SetTankPassedCount(Handle plugin, int numParams) // Native "L4D2Direc
 
 int Direct_GetVSCampaignScore(Handle plugin, int numParams) // Native "L4D2Direct_GetVSCampaignScore"
 {
-	ValidateAddress(g_pVersusMode, "VersusModePtr");
-	ValidateAddress(g_iOff_m_iCampaignScores, "m_iCampaignScores");
+	ValidateAddress(g_pGameRules, "GameRulesPtr");
+	ValidateAddress(g_iOff_m_iCampaignScores2, "m_iCampaignScores2");
 
 	int team = GetNativeCell(1);
 	if( team < 0 || team > 1 ) return -1;
 
-	return LoadFromAddress(view_as<Address>(g_pVersusMode + g_iOff_m_iCampaignScores + (team * 4)), NumberType_Int32);
+	return LoadFromAddress(g_pGameRules + view_as<Address>(g_iOff_m_iCampaignScores2 + (team * 4)), NumberType_Int32);
 }
 
 int Direct_SetVSCampaignScore(Handle plugin, int numParams) // Native "L4D2Direct_SetVSCampaignScore"
 {
-	ValidateAddress(g_pVersusMode, "VersusModePtr");
-	ValidateAddress(g_iOff_m_iCampaignScores, "m_iCampaignScores");
+	ValidateAddress(g_pGameRules, "GameRulesPtr");
+	ValidateAddress(g_iOff_m_iCampaignScores2, "m_iCampaignScores2");
+	ValidateNatives(g_hSDK_CTerrorGameRules_SetCampaignScores, "CTerrorGameRules::SetCampaignScores");
 
 	int team = GetNativeCell(1);
 	if( team < 0 || team > 1 ) return 0;
 
+	// Update real scores
 	int score = GetNativeCell(2);
-	StoreToAddress(view_as<Address>(g_pVersusMode + g_iOff_m_iCampaignScores + (team * 4)), score, NumberType_Int32, false);
+	StoreToAddress(g_pGameRules + view_as<Address>(g_iOff_m_iCampaignScores2 + (team * 4)), score, NumberType_Int32, false);
+
+	// Update on tab scoreboard
+	int vals[2];
+	vals[0] = LoadFromAddress(g_pGameRules + view_as<Address>(g_iOff_m_iCampaignScores2), NumberType_Int32);
+	vals[1] = LoadFromAddress(g_pGameRules + view_as<Address>(g_iOff_m_iCampaignScores2 + 4), NumberType_Int32);
+	SDKCall(g_hSDK_CTerrorGameRules_SetCampaignScores, vals[0], vals[1]);
 
 	return 0;
 }
@@ -4546,12 +4644,13 @@ int Direct_SetSurvivorHealthBonus(Handle plugin, int numParams) // Native "L4DDi
 
 int Direct_RecomputeTeamScores(Handle plugin, int numParams) // Native "L4DDirect_RecomputeTeamScores"
 {
-	if( g_bLeft4Dead2 ) ThrowNativeError(SP_ERROR_NOT_RUNNABLE, NATIVE_UNSUPPORTED1);
-
 	ValidateNatives(g_hSDK_CTerrorGameRules_RecomputeTeamScores, "CTerrorGameRules::RecomputeTeamScores");
 
 	//PrintToServer("#### CALL g_hSDK_CTerrorGameRules_RecomputeTeamScores");
-	SDKCall(g_hSDK_CTerrorGameRules_RecomputeTeamScores);
+	if( g_bLeft4Dead2 )
+		SDKCall(g_hSDK_CTerrorGameRules_RecomputeTeamScores, 1);
+	else
+		SDKCall(g_hSDK_CTerrorGameRules_RecomputeTeamScores);
 	return true;
 }
 
@@ -4860,7 +4959,7 @@ int Native_CTerrorPlayer_CancelStagger(Handle plugin, int numParams) // Native "
 		if( g_iCancelStagger[client] == 0 )
 			SDKHook(client, SDKHook_PostThinkPost, OnThinkCancelStagger);
 
-		g_iCancelStagger[client] = 3;
+		g_iCancelStagger[client] = 4;
 	}
 
 	// PrintToServer("#### CALL g_hSDK_CTerrorPlayer_CancelStagger");
@@ -4871,16 +4970,19 @@ int Native_CTerrorPlayer_CancelStagger(Handle plugin, int numParams) // Native "
 
 void OnThinkCancelStagger(int client)
 {
-	g_iCancelStagger[client]--;
 	if( g_iCancelStagger[client] == 0 )
 	{
 		SDKUnhook(client, SDKHook_PostThinkPost, OnThinkCancelStagger);
 	}
-
-	if( GetClientTeam(client) == 3 && IsPlayerAlive(client) && L4D_IsPlayerStaggering(client) )
+	else
 	{
-		SetEntityMoveType(client, MOVETYPE_WALK); // Makes them move less than without this line
-		SetEntPropFloat(client, Prop_Send, "m_flCycle", 1.0); // Skip stumble animation
+		g_iCancelStagger[client]--;
+
+		if( GetClientTeam(client) == 3 && IsPlayerAlive(client) && L4D_IsPlayerStaggering(client) )
+		{
+			SetEntityMoveType(client, MOVETYPE_WALK); // Makes them move less than without this line
+			SetEntPropFloat(client, Prop_Send, "m_flCycle", 1.0); // Skip stumble animation
+		}
 	}
 }
 

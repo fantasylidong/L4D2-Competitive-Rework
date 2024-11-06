@@ -65,6 +65,7 @@ GlobalForward g_hFWD_CSquirrelVM_GetValue_Void;
 GlobalForward g_hFWD_CSquirrelVM_GetValue_Int;
 GlobalForward g_hFWD_CSquirrelVM_GetValue_Float;
 GlobalForward g_hFWD_CSquirrelVM_GetValue_Vector;
+GlobalForward g_hFWD_CDirector_OnFinishIntro;
 GlobalForward g_hFWD_CDirector_IsTeamFull;
 GlobalForward g_hFWD_CTerrorPlayer_EnterGhostState_Pre;
 GlobalForward g_hFWD_CTerrorPlayer_EnterGhostState_Post;
@@ -119,6 +120,7 @@ GlobalForward g_hFWD_StartMeleeSwing_Post;
 GlobalForward g_hFWD_StartMeleeSwing_PostHandled;
 GlobalForward g_hFWD_GetDamageForVictim;
 GlobalForward g_hFWD_CDirectorScriptedEventManager_SendInRescueVehicle;
+GlobalForward g_hFWD_CDirector_CreateRescuableSurvivors;
 GlobalForward g_hFWD_CDirectorScriptedEventManager_ChangeFinaleStage;
 GlobalForward g_hFWD_CDirectorScriptedEventManager_ChangeFinaleStage_Post;
 GlobalForward g_hFWD_CDirectorScriptedEventManager_ChangeFinaleStage_PostPost;
@@ -184,6 +186,7 @@ GlobalForward g_hFWD_CTerrorPlayer_OnStartCarryingVictim;
 GlobalForward g_hFWD_CTerrorPlayer_OnStartCarryingVictim_Post;
 GlobalForward g_hFWD_CTerrorPlayer_OnStartCarryingVictim_PostHandled;
 GlobalForward g_hFWD_CCharge_ImpactStagger;
+GlobalForward g_hFWD_CTerrorPlayer_OnDominatedBySpecialInfected;
 GlobalForward g_hFWD_CInsectSwarm_CanHarm;
 GlobalForward g_hFWD_CInsectSwarm_CanHarm_Post;
 GlobalForward g_hFWD_CInsectSwarm_CanHarm_PostHandled;
@@ -317,6 +320,7 @@ void SetupDetours(GameData hGameData = null)
 	CreateDetour(hGameData,			DTR_CTerrorPlayer_TakeOverBot_Pre,							DTR_CTerrorPlayer_TakeOverBot_Post,							"L4DD::CTerrorPlayer::TakeOverBot",									"L4D_OnTakeOverBot");
 	CreateDetour(hGameData,			DTR_CTerrorPlayer_TakeOverBot_Pre,							DTR_CTerrorPlayer_TakeOverBot_Post,							"L4DD::CTerrorPlayer::TakeOverBot",									"L4D_OnTakeOverBot_Post",						true);
 	CreateDetour(hGameData,			DTR_CTerrorPlayer_TakeOverBot_Pre,							DTR_CTerrorPlayer_TakeOverBot_Post,							"L4DD::CTerrorPlayer::TakeOverBot",									"L4D_OnTakeOverBot_PostHandled",				true);
+	CreateDetour(hGameData,			DTR_CDirector_OnFinishIntro_Pre,							DTR_CDirector_OnFinishIntro,								"L4DD::CDirector::OnFinishIntro",									"L4D_OnFinishIntro");
 	CreateDetour(hGameData,			DTR_CDirector_IsTeamFull,									INVALID_FUNCTION,											"L4DD::CDirector::IsTeamFull",										"L4D_OnIsTeamFull");
 	CreateDetour(hGameData,			DTR_CTerrorGameRules_ClearTeamScores,						INVALID_FUNCTION,											"L4DD::CTerrorGameRules::ClearTeamScores",							"L4D_OnClearTeamScores");
 	CreateDetour(hGameData,			DTR_CTerrorGameRules_SetCampaignScores,						DTR_CTerrorGameRules_SetCampaignScores_Post,				"L4DD::CTerrorGameRules::SetCampaignScores",						"L4D_OnSetCampaignScores");
@@ -379,6 +383,7 @@ void SetupDetours(GameData hGameData = null)
 		CreateDetour(hGameData,		DTR_CDirectorScriptedEventManager_SendInRescueVehicle,		INVALID_FUNCTION,											"L4DD::CDirectorScriptedEventManager::SendInRescueVehicle",			"L4D2_OnSendInRescueVehicle");
 	}
 
+	CreateDetour(hGameData,			DTR_CDirector_CreateRescuableSurvivors,						DTR_CDirector_CreateRescuableSurvivors_Post,				"L4DD::CDirector::CreateRescuableSurvivors",						"L4D_OnCreateRescuableSurvivors");
 	CreateDetour(hGameData,			DTR_CDirector_TryOfferingTankBot,							DTR_CDirector_TryOfferingTankBot_Post,						"L4DD::CDirector::TryOfferingTankBot",								"L4D_OnTryOfferingTankBot");
 	CreateDetour(hGameData,			DTR_CDirector_TryOfferingTankBot,							DTR_CDirector_TryOfferingTankBot_Post,						"L4DD::CDirector::TryOfferingTankBot",								"L4D_OnTryOfferingTankBot_Post",				true);
 	CreateDetour(hGameData,			DTR_CDirector_TryOfferingTankBot,							DTR_CDirector_TryOfferingTankBot_Post,						"L4DD::CDirector::TryOfferingTankBot",								"L4D_OnTryOfferingTankBot_PostHandled",			true);
@@ -509,6 +514,7 @@ void SetupDetours(GameData hGameData = null)
 		CreateDetour(hGameData,		DTR_CTerrorPlayer_OnStartCarryingVictim,					DTR_CTerrorPlayer_OnStartCarryingVictim_Post,				"L4DD::CTerrorPlayer::OnStartCarryingVictim",						"L4D2_OnStartCarryingVictim_Post",				true);
 		CreateDetour(hGameData,		DTR_CTerrorPlayer_OnStartCarryingVictim,					DTR_CTerrorPlayer_OnStartCarryingVictim_Post,				"L4DD::CTerrorPlayer::OnStartCarryingVictim",						"L4D2_OnStartCarryingVictim_PostHandled",		true);
 		CreateDetour(hGameData,		DTR_CCharge_ImpactStagger,									INVALID_FUNCTION,											"L4DD::CCharge::ImpactStagger",										"L4D2_OnChargerImpact");
+		CreateDetour(hGameData,		INVALID_FUNCTION,											DTR_CTerrorPlayer_IsDominatedBySpecialInfected,				"L4DD::CTerrorPlayer::IsDominatedBySpecialInfected",				"L4D2_OnDominatedBySpecialInfected");
 		CreateDetour(hGameData,		DTR_CGasCanEvent_Killed,									DTR_CGasCanEvent_Killed_Post,								"L4DD::CGasCan::Event_Killed",										"L4D2_CGasCan_EventKilled");
 		CreateDetour(hGameData,		DTR_CGasCanEvent_Killed,									DTR_CGasCanEvent_Killed_Post,								"L4DD::CGasCan::Event_Killed",										"L4D2_CGasCan_EventKilled_Post",				true);
 		CreateDetour(hGameData,		DTR_CGasCanEvent_Killed,									DTR_CGasCanEvent_Killed_Post,								"L4DD::CGasCan::Event_Killed",										"L4D2_CGasCan_EventKilled_PostHandled",			true);
@@ -1648,6 +1654,21 @@ MRESReturn DTR_CTerrorPlayer_TakeOverBot_Post(int pThis, DHookReturn hReturn, DH
 	return MRES_Ignored;
 }
 
+MRESReturn DTR_CDirector_OnFinishIntro_Pre()
+{
+	//PrintToServer("##### DTR_CDirector_OnFinishIntro_Pre");
+	return MRES_Ignored;
+}
+
+MRESReturn DTR_CDirector_OnFinishIntro() // Forward "L4D_OnFinishIntro"
+{
+	//PrintToServer("##### DTR_CDirector_OnFinishIntro");
+	Call_StartForward(g_hFWD_CDirector_OnFinishIntro);
+	Call_Finish();
+
+	return MRES_Ignored;
+}
+
 MRESReturn DTR_CDirector_IsTeamFull(DHookReturn hReturn, DHookParam hParams) // Forward "L4D_OnIsTeamFull"
 {
 	//PrintToServer("##### DTR_CDirector_IsTeamFull");
@@ -2502,6 +2523,7 @@ MRESReturn DTR_CDirectorScriptedEventManager_SendInRescueVehicle(DHookReturn hRe
 // MRESReturn DTR_CDirectorScriptedEventManager_SendInRescueVehicle(DHookParam hParams)
 {
 	//PrintToServer("##### DTR_CDirectorScriptedEventManager_SendInRescueVehicle");
+
 	Action aResult = Plugin_Continue;
 	Call_StartForward(g_hFWD_CDirectorScriptedEventManager_SendInRescueVehicle);
 	Call_Finish(aResult);
@@ -2512,6 +2534,57 @@ MRESReturn DTR_CDirectorScriptedEventManager_SendInRescueVehicle(DHookReturn hRe
 		// hParams.SetObjectVar(1, 1, ObjectValueType_Int, 0);
 		hReturn.Value = 0;
 		return MRES_Supercede;
+	}
+
+	return MRES_Ignored;
+}
+
+int g_iRescuePlayers[MAXPLAYERS+1];
+MRESReturn DTR_CDirector_CreateRescuableSurvivors(DHookReturn hReturn) // Forward "L4D_OnCreateRescuableSurvivors"
+{
+	//PrintToServer("##### DTR_CDirector_CreateRescuableSurvivors");
+	bool isDead;
+
+	for( int i = 1; i <= MaxClients; i++ )
+	{
+		g_iRescuePlayers[i] = 0;
+
+		if( !isDead && IsClientInGame(i) && GetClientTeam(i) == 2 && !IsPlayerAlive(i) )
+		{
+			isDead = true;
+		}
+	}
+
+	if( !isDead ) return MRES_Ignored;
+
+	Action aResult = Plugin_Continue;
+	Call_StartForward(g_hFWD_CDirector_CreateRescuableSurvivors);
+	Call_PushArrayEx(g_iRescuePlayers, sizeof(g_iRescuePlayers), SM_PARAM_COPYBACK);
+	Call_Finish(aResult);
+
+	if( aResult == Plugin_Changed )
+	{
+		for( int i = 1; i <= MaxClients; i++ )
+		{
+			if( g_iRescuePlayers[i] == 1 && IsClientInGame(i) && !IsPlayerAlive(i) && GetClientTeam(i) == 2 ) // Ignore those not on team 2, the game already cannot respawn them
+			{
+				SetEntProp(i, Prop_Send, "m_iTeamNum", 4);
+			}
+		}
+	}
+
+	return MRES_Ignored;
+}
+
+MRESReturn DTR_CDirector_CreateRescuableSurvivors_Post(DHookReturn hReturn) // Forward "L4D_OnCreateRescuableSurvivors"
+{
+	// return MRES_Ignored;
+	for( int i = 1; i <= MaxClients; i++ )
+	{
+		if( g_iRescuePlayers[i] == 1 && IsClientInGame(i) )
+		{
+			SetEntProp(i, Prop_Send, "m_iTeamNum", 2);
+		}
 	}
 
 	return MRES_Ignored;
@@ -4808,6 +4881,30 @@ MRESReturn DTR_CCharge_ImpactStagger(int pThis, DHookReturn hReturn) // Forward 
 	return MRES_Ignored;
 }
 
+MRESReturn DTR_CTerrorPlayer_IsDominatedBySpecialInfected(int pThis, DHookReturn hReturn) // Forward "L4D2_OnDominatedBySpecialInfected"
+{
+	//PrintToServer("##### DTR_CTerrorPlayer_IsDominatedBySpecialInfected");
+
+	// Is domination happening
+	if( hReturn.Value )
+	{
+		// This function is called literally for everyone, including infected clients. (wtf?)
+		if( GetClientTeam(pThis) != 2 ) return MRES_Ignored;
+
+		// Only alive survivors. in case of some weird bugs ?
+		if( !IsPlayerAlive(pThis) ) return MRES_Ignored;
+
+		int attacker = SDKCall(g_hSDK_CTerrorPlayer_GetSpecialInfectedDominatingMe, pThis);
+
+		Call_StartForward(g_hFWD_CTerrorPlayer_OnDominatedBySpecialInfected);
+		Call_PushCell(pThis);
+		Call_PushCell(attacker);
+		Call_Finish();	
+	}
+
+	return MRES_Ignored;
+}
+
 bool g_bBlock_CInsectSwarm_CanHarm;
 MRESReturn DTR_CInsectSwarm_CanHarm(int pThis, DHookReturn hReturn, DHookParam hParams) // Forward "L4D2_CInsectSwarm_CanHarm"
 {
@@ -5500,7 +5597,7 @@ MRESReturn DTR_CSquirrelVM_GetValue(DHookReturn hReturn, DHookParam hParams) // 
 bool StringToVector(const char[] str, const char[] spilt, float vec[3])
 {
 	char buffers[3][20];
-	if( 3 > ExplodeString(str, spilt, buffers, sizeof(buffers[]), sizeof(buffers[][]), true) )
+	if( ExplodeString(str, spilt, buffers, sizeof(buffers), sizeof(buffers[]), true) < 3 )
 		return false;
 
 	for( int i = 0; i < 3; ++i )

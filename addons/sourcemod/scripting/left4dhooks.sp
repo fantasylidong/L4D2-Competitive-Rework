@@ -18,8 +18,8 @@
 
 
 
-#define PLUGIN_VERSION		"1.150"
-#define PLUGIN_VERLONG		1150
+#define PLUGIN_VERSION		"1.155"
+#define PLUGIN_VERLONG		1155
 
 #define DEBUG				0
 // #define DEBUG			1	// Prints addresses + detour info (only use for debugging, slows server down).
@@ -29,7 +29,7 @@
 
 #define KILL_VSCRIPT		0	// 0=Keep VScript entity after using for "GetVScriptOutput". 1=Kill the entity after use (more resourceful to keep recreating, use if you're maxing out entities and reaching the limit regularly).
 
-#define ALLOW_UPDATER		1	// 0=Off. 1=Allow the plugin to auto-update using the "Updater" plugin by "GoD-Tony". 2=Allow updating and reloading after update.
+#define ALLOW_UPDATER		0	// 0=Off. 1=Allow the plugin to auto-update using the "Updater" plugin by "GoD-Tony". 2=Allow updating and reloading after update.
 
 
 
@@ -115,7 +115,7 @@
 
 // ====================================================================================================
 // UPDATER
-#define UPDATE_URL					"https://raw.githubusercontent.com/SilvDev/Left4DHooks/main/sourcemod/updater.txt"
+#define UPDATE_URL						"https://raw.githubusercontent.com/SilvDev/Left4DHooks/main/sourcemod/updater.txt"
 
 native void Updater_AddPlugin(const char[] url);
 // ====================================================================================================
@@ -278,6 +278,7 @@ int g_iOff_m_PlayerAnimState;
 int g_iOff_m_eCurrentMainSequenceActivity;
 int g_iOff_m_bIsCustomSequence;
 int g_iOff_m_iCampaignScores;
+int g_iOff_m_iCampaignScores2;
 int g_iOff_m_fTankSpawnFlowPercent;
 int g_iOff_m_fWitchSpawnFlowPercent;
 int g_iOff_m_iTankPassedCount;
@@ -298,6 +299,7 @@ int g_iOff_m_PendingMobCount;
 int g_iOff_m_nFirstClassIndex;
 int g_iOff_m_fMapMaxFlowDistance;
 int g_iOff_m_chapter;
+int g_iOff_m_bInIntro;
 int g_iOff_m_attributeFlags;
 int g_iOff_m_spawnAttributes;
 int g_iOff_NavAreaID;
@@ -324,6 +326,10 @@ int g_pScriptedEventManager;
 int g_pVersusMode;
 int g_pSurvivalMode;
 int g_pScavengeMode;
+int g_pItemManager;
+int g_pMusicBanks;
+int g_pSessionManager;
+int g_pChallengeMode;
 Address g_pServer;
 Address g_pAmmoDef;
 Address g_pDirector;
@@ -349,6 +355,8 @@ int g_iCanBecomeGhostOffset;
 // Other
 Address g_pScriptId;
 int g_iCancelStagger[MAXPLAYERS+1];
+int g_iClientDeathModel[MAXPLAYERS+1];
+int g_iDeathModel;
 int g_iPlayerResourceRef;
 int g_iOffsetAmmo;
 int g_iPrimaryAmmoType;
@@ -720,6 +728,10 @@ public void OnPluginStart()
 		HookEvent("player_entered_checkpoint",		Event_EnteredCheckpoint);
 		HookEvent("player_left_checkpoint",			Event_LeftCheckpoint);
 	}
+	else
+	{
+		HookEvent("player_death",					Event_PlayerDeath);
+	}
 }
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -780,6 +792,12 @@ void Event_LeftCheckpoint(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = event.GetInt("userid");
+	g_iClientDeathModel[GetClientOfUserId(client)] = g_iDeathModel;
+}
+
 
 
 // ====================================================================================================
@@ -817,6 +835,13 @@ void ResetVars()
 			if( g_iCancelStagger[i] )
 				SDKUnhook(i, SDKHook_PostThinkPost, OnThinkCancelStagger);
 			g_iCancelStagger[i] = 0;
+		}
+	}
+	else
+	{
+		for( int i = 1; i <= MaxClients; i++ )
+		{
+			g_iClientDeathModel[i] = 0;
 		}
 	}
 }
@@ -980,10 +1005,13 @@ public void OnMapEnd()
 	{
 		hPlug = ReadPlugin(hIter);
 
-		for( int i = 1; i <= MaxClients; i++ )
+		if( hPlug )
 		{
-			g_hAnimationCallbackPre[i].RemoveAllFunctions(hPlug);
-			g_hAnimationCallbackPost[i].RemoveAllFunctions(hPlug);
+			for( int i = 1; i <= MaxClients; i++ )
+			{
+				g_hAnimationCallbackPre[i].RemoveAllFunctions(hPlug);
+				g_hAnimationCallbackPost[i].RemoveAllFunctions(hPlug);
+			}
 		}
 	}
 

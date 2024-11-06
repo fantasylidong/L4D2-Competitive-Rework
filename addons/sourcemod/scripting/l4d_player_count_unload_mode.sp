@@ -111,6 +111,9 @@ int
     g_iPlayerSpawn,
     g_iRoundCounter;
 
+bool 
+    g_bPluginStart;
+
 Handle
     g_hDetectTimer;
 
@@ -120,7 +123,7 @@ public void OnPluginStart()
     z_max_player_zombies = FindConVar("z_max_player_zombies");
 
     g_hCvarEnable 		= CreateConVar( PLUGIN_NAME ... "_enable",        "1",              "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-    g_hCvarTime 		= CreateConVar(	PLUGIN_NAME ... "_time", 		  "16:00~23:59",    "檢測的時間段, 寫法xx:xx~xx:xx (二十四小時制), 寫多時間段請用逗號區隔", CVAR_FLAGS);
+    g_hCvarTime 		= CreateConVar(	PLUGIN_NAME ... "_time", 		  "18:00~22:59",    "檢測的時間段, 寫法xx:xx~xx:xx (二十四小時制), 寫多時間段請用逗號區隔", CVAR_FLAGS);
     g_hCvarCount        = CreateConVar(	PLUGIN_NAME ... "_count", 		  "3",              "檢測 survivor_limit + infected 空位 <= 此數值之時，強制執行sm_resetmatch, 卸載模式", CVAR_FLAGS, true, 1.0, true, 32.0);
     g_hCvarFlag         = CreateConVar(	PLUGIN_NAME ... "_flag", 		  "b",              "有這權限的管理員在場就不會被強制卸載模式", CVAR_FLAGS);
     g_hCvarDelay        = CreateConVar(	PLUGIN_NAME ... "_delay", 		  "60.0",           "地圖載入此秒數後才會檢測時間與人數", CVAR_FLAGS, true, 0.0);
@@ -212,6 +215,8 @@ public void OnMapEnd()
 {
     ClearDefault();
     ResetTimer();
+
+    g_bPluginStart = false;
 }
 
 // Event-------------------------------
@@ -240,7 +245,7 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast) 
 {
-    if(!g_bCvarEnable || g_hDetectTimer != null) return;
+    if(!g_bCvarEnable || !g_bPluginStart || g_hDetectTimer != null) return;
 
     int userid = event.GetInt("userid");
     int client = GetClientOfUserId(userid);
@@ -259,6 +264,8 @@ Action Timer_PluginStart(Handle timer)
 
     delete g_hDetectTimer; 
     g_hDetectTimer = CreateTimer(g_fCvarDelay, Timer_DetectPlayerCount);
+
+    g_bPluginStart = true;
 
     return Plugin_Continue;
 }
