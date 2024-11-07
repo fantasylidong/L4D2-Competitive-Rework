@@ -48,6 +48,7 @@
 * 如果需要数据库，请使用项目里的database.sql创表，并且根据wiki里的文档进行数据库调优（尤其是服务器较多的情况）
 * 正常情况下，请不要加载任何一个test插件文件夹内的插件，你加载一个文件夹内的一个插件，sourcemod的bug可能会把那个文件夹内的所有插件全部加载（感谢Harry提醒，我确实碰到这个问题）
 * 对抗模式默认不开启mod，如果需要玩对抗请手动关闭mod
+* 常规要加载的拓展插件放到extend文件夹，测试插件放到test文件夹，投票加载卸载的插件放到optional文件夹，Anne模式的放到optional/Annehappy文件夹
 ---
 
 ## **已知问题:**
@@ -67,7 +68,7 @@
 - extend/chatlog.smx 数据库聊天记录插件
 - extend/l4d_hats.smx 插件，最新帽子插件修改版，增加了数据库功能和forward处理，无积分插件也能使用，但是需要自己配置好l4d_hats配置
 - extend/l4d2_item_hint.smx 标点插件，禁用了一部分功能，增加了光圈标点的聊天栏提示，也需要积分功能搭配限制，无积分插件也能使用
-- disabled/specrate.smx 旁观30tick插件，更改后4人旁观数以内，30w积分的玩家也能100tick旁观，超过4人旁观，除管理员外其他旁观玩家一律30tick
+- optional/specrate.smx 旁观30tick插件，更改后4人旁观数以内，30w积分的玩家能60tick旁观，超过4人旁观，除管理员外其他旁观玩家一律30tick，管理员可以100tick旁观
 - extendd/veterans.smx 时长检测插件，部分依赖于l4d_stats.smx插件的时长信息，能够自定义想玩游戏玩家的时长限制，不满足时长的，只能旁观，join.smx插件依赖这个插件提供是否是steamm组成员的信息
 - extend/join.smx 玩家加入离开提示，换队作用，motd展示功能（不是组员会有提示，需要veterans插件作为前置）
 
