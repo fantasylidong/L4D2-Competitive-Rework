@@ -554,7 +554,11 @@ stock void TE_SetupPhysicsProp(float vecModelOrigin[3],
 	TE_WriteNum("r", RGB[0]);
 	TE_WriteNum("g", RGB[1]);
 	TE_WriteNum("b", RGB[2]);
-	if( iSkin ) iSkin += 1; // Fix "symbol is never used" in SM 1.12
+	
+	// Garbage code to prevent warning, symbol 'iSkin' is not used
+	if (iSkin == -1) {
+		LogError("TE_SetupPhysicsProp %d", iSkin);
+	}
 }
 
 /**
