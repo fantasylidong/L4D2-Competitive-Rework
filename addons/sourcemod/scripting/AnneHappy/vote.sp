@@ -317,7 +317,7 @@ public void VoteResultHandler(Handle vote, int num_votes, int num_clients, const
 				{
 					DisplayBuiltinVotePass(vote, "投票已完成...");
 					if(g_bSourceBansSystemAvailable){
-						SBPP_BanPlayer(voteclient, banclient, 1440, "投票封禁");
+						SBPP_BanPlayer(0, banclient, 1440, "投票封禁");
 					}else
 					{
 						BanClient(banclient,  1440, ADMFLAG_BAN, "投票封禁", "你已被当前服务器踢出，原因为投票封禁");
